@@ -1,3 +1,6 @@
 spring:
   application:
     name: spring-notes
+  docker:
+    compose:
+      executable: podman-compose

@@ -57,6 +57,16 @@ dependencyManagement {
 	}
 }
 
+bootBuildImage {
+	docker {
+		publishRegistry {
+			url = findProperty('registryUrl') ?: 'https://ghcr.io'
+			username = findProperty('registryUsername') ?: ''
+			password = findProperty('registryPassword') ?: ''
+		}
+	}
+}
+
 tasks.named('test') {
 	useJUnitPlatform()
 }
