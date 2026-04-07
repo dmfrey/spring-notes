@@ -34,6 +34,22 @@ jobs:
     permissions:
       contents: read
       packages: write
+    # AOT processing starts the application context which triggers Liquibase,
+    # so a real database is required during the native image build.
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_DB: spring_notes
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
 
@@ -54,6 +70,10 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push native image
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/spring_notes
+          SPRING_DATASOURCE_USERNAME: postgres
+          SPRING_DATASOURCE_PASSWORD: postgres
         run: |
           ./gradlew bootBuildImage \
             --imageName=ghcr.io/${{ github.repository }}:${{ github.sha }} \
