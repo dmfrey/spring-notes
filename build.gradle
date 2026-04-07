@@ -95,6 +95,9 @@ tasks.named('processAot') {
 		System.getenv('SPRING_DATASOURCE_USERNAME') ?: 'postgres'
 	systemProperty 'spring.datasource.password',
 		System.getenv('SPRING_DATASOURCE_PASSWORD') ?: 'postgres'
+	// Explicitly set driver class to bypass URL-based detection, which can fail
+	// when the PostgreSQL driver is on the runtime-only classpath during AOT.
+	systemProperty 'spring.datasource.driver-class-name', 'org.postgresql.Driver'
 }
 
 tasks.named('test') {
