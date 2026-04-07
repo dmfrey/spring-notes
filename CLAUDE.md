@@ -105,7 +105,9 @@ The verb-prefixed `Command` name (e.g., `CreateNoteCommand`) keeps commands iden
 - Current type: `persistence` (Spring Data JDBC)
 
 **Feature Configuration** (`<feature>/configuration/`):
-- Feature-scoped `@Configuration` classes only — e.g., Spring Data JDBC repository scanning limited to this feature's packages
+- Feature-scoped `@Configuration` only
+- `@ComponentScan` scoped to the feature's root package — picks up `@Service`, `@Repository`, etc. within this feature only
+- `@EnableJdbcRepositories` scoped to the feature's persistence package — limits Spring Data JDBC repository scanning to this feature
 
 **Root Configuration** (`com.broadcom.springconsulting.spring_notes.configuration/`):
 - Cross-cutting concerns only (security, observability config, etc.)

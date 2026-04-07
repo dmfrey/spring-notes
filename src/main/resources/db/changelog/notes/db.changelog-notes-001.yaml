@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: notes-001-create-notes-table
+      author: dmfrey
+      changes:
+        - createTable:
+            tableName: notes
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: title
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: content
+                  type: TEXT
+                  constraints:
+                    nullable: true
