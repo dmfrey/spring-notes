@@ -24,30 +24,45 @@ ext {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-micrometer-tracing-brave'
+
+	// Spring Boot dependencies
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
 	implementation 'org.springframework.boot:spring-boot-starter-liquibase'
-	implementation 'org.springframework.boot:spring-boot-starter-opentelemetry'
 	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+
+	// Observability dependencies
+	implementation 'org.springframework.boot:spring-boot-micrometer-tracing-brave'
+	implementation 'org.springframework.boot:spring-boot-starter-opentelemetry'
 	implementation 'io.micrometer:micrometer-tracing-bridge-brave'
 	implementation 'net.ttddyy.observation:datasource-micrometer-opentelemetry'
 	implementation 'net.ttddyy.observation:datasource-micrometer-spring-boot'
+
+	runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+
+	// Database dependencies
+	runtimeOnly 'org.postgresql:postgresql'
+
+	// Developer Tools
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
-	runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
-	runtimeOnly 'org.postgresql:postgresql'
+
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-	testImplementation 'org.springframework.boot:spring-boot-micrometer-tracing-test'
+
+	// Test dependencies
 	testImplementation 'org.springframework.boot:spring-boot-starter-actuator-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-data-jdbc-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-liquibase-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-opentelemetry-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+
+	testImplementation 'org.springframework.boot:spring-boot-micrometer-tracing-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-opentelemetry-test'
+
 	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
 	testImplementation 'org.testcontainers:testcontainers-grafana'
 	testImplementation 'org.testcontainers:testcontainers-junit-jupiter'
 	testImplementation 'org.testcontainers:testcontainers-postgresql'
+
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
