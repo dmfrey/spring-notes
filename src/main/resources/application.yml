@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: spring-notes
+  threads:
+    virtual:
+      enabled: true
