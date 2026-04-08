@@ -22,7 +22,7 @@ repositories {
 }
 
 ext {
-	set('datasourceMicrometerVersion', "2.2.0")
+	set('datasourceMicrometerVersion', "2.2.1")
 }
 
 dependencies {
