@@ -1,11 +1,18 @@
 spring:
   application:
     name: spring-notes
+  data:
+    jdbc:
+      repositories:
+        enabled: true
   datasource:
+    driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/spring_notes
     username: postgres
     password: postgres
-    driver-class-name: org.postgresql.Driver
-  docker:
-    compose:
-      enabled: false
+  threads:
+    virtual:
+      enabled: true
+#  docker:
+#    compose:
+#      enabled: false

@@ -1,5 +1,5 @@
-spring:
-  docker:
-    compose:
-      enabled: true
-      executable: podman-compose
+#spring:
+#  docker:
+#    compose:
+#      enabled: true
+#      executable: podman-compose

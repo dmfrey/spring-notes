@@ -1,3 +1,5 @@
+import org.springframework.boot.gradle.tasks.aot.ProcessAot
+
 plugins {
 	id 'java'
 	id 'org.springframework.boot' version '4.0.5'
@@ -43,10 +45,10 @@ dependencies {
 	runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 
 	// Database dependencies
-	runtimeOnly 'org.postgresql:postgresql'
+	implementation 'org.postgresql:postgresql'
 
 	// Developer Tools
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+//	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
 
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
@@ -84,7 +86,7 @@ bootBuildImage {
 	}
 }
 
-tasks.named('processAot') {
+tasks.withType(ProcessAot).configureEach {
 	// AOT processing starts the full application context, which triggers
 	// Liquibase — requiring a real database. The datasource is configured in
 	// application.yaml via ${SPRING_DATASOURCE_*} env-var substitution.
