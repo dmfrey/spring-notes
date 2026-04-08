@@ -76,6 +76,7 @@ jobs:
           SPRING_DATASOURCE_PASSWORD: postgres
         run: |
           ./gradlew bootBuildImage \
+            --no-build-cache \
             --imageName=ghcr.io/${{ github.repository }}:${{ github.sha }} \
             --publishImage \
             -PregistryUrl=https://ghcr.io \
