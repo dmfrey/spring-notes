@@ -1,6 +1,32 @@
+logging:
+  level:
+    org.springframework.web: INFO
+
 spring:
   application:
     name: spring-notes
   threads:
     virtual:
       enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  opentelemetry:
+    resource-attributes:
+      service.name: ${spring.application.name}
+      deployment.environment: ${DEPLOYMENT_ENVIRONMENT:local}
+    tracing:
+      export:
+        otlp:
+          endpoint: http://alloy.observability.svc.cluster.local:4318/v1/traces
+  otlp:
+    metrics:
+      export:
+        url: http://alloy.observability.svc.cluster.local:4318/v1/metrics
+        step: 1m
+  tracing:
+    sampling:
+      probability: 1.0
