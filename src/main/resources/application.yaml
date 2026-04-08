@@ -8,4 +8,4 @@ spring:
     driver-class-name: org.postgresql.Driver
   docker:
     compose:
-      executable: podman-compose
+      enabled: false

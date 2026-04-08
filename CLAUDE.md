@@ -39,10 +39,10 @@ Testcontainers is configured with Ryuk disabled (`src/test/resources/testcontain
 ### Running the App
 
 ```bash
-./gradlew bootRun
+SPRING_PROFILES_ACTIVE=local ./gradlew bootRun
 ```
 
-Spring Boot Docker Compose is configured to use `podman-compose` (`spring.docker.compose.executable`). Place service definitions in `compose.yaml` at the project root.
+The `local` profile (`application-local.yaml`) enables Spring Boot Docker Compose with `podman-compose`. Without it, Docker Compose is disabled (required for CI/AOT). Service definitions live in `compose.yaml` at the project root.
 
 ## Architecture
 
