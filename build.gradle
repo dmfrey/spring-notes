@@ -21,9 +21,9 @@ repositories {
 	mavenCentral()
 }
 
-//ext {
-//	set('datasourceMicrometerVersion', "2.2.1")
-//}
+ext {
+	set('datasourceMicrometerVersion', "2.2.1")
+}
 
 dependencies {
 
@@ -37,8 +37,8 @@ dependencies {
 
 	// Observability dependencies
 	implementation 'org.springframework.boot:spring-boot-starter-opentelemetry'
-//	implementation 'net.ttddyy.observation:datasource-micrometer-opentelemetry'
-//	implementation 'net.ttddyy.observation:datasource-micrometer-spring-boot'
+	implementation 'net.ttddyy.observation:datasource-micrometer-opentelemetry'
+	implementation 'net.ttddyy.observation:datasource-micrometer-spring-boot'
 
 	runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 
@@ -67,11 +67,11 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-//dependencyManagement {
-//	imports {
-//		mavenBom "net.ttddyy.observation:datasource-micrometer-bom:${datasourceMicrometerVersion}"
-//	}
-//}
+dependencyManagement {
+	imports {
+		mavenBom "net.ttddyy.observation:datasource-micrometer-bom:${datasourceMicrometerVersion}"
+	}
+}
 
 bootBuildImage {
 	docker {
