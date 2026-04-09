@@ -2,6 +2,8 @@ package com.broadcom.springconsulting.springnotes.notes.adapter.in.endpoint;
 
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.NoteSlice;
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.LoadNotesUseCase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -12,6 +14,8 @@ import java.util.UUID;
 @RestController
 @RequestMapping( "/notes" )
 class NotesEndpoint {
+
+    private static final Logger log = LoggerFactory.getLogger( NotesEndpoint.class );
 
     private final LoadNotesUseCase loadNotesUseCase;
 
@@ -24,6 +28,8 @@ class NotesEndpoint {
             @RequestParam( required = false ) UUID cursor,
             @RequestParam( defaultValue = "25" ) int limit
     ) {
+        log.debug( "Loading notes with cursor {} and limit {}", cursor, limit );
+
         return loadNotesUseCase.execute( new LoadNotesUseCase.LoadNotesCommand( cursor, limit ) );
     }
 
