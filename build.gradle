@@ -21,9 +21,9 @@ repositories {
 	mavenCentral()
 }
 
-ext {
-	set('datasourceMicrometerVersion', "2.2.1")
-}
+//ext {
+//	set('datasourceMicrometerVersion', "2.2.1")
+//}
 
 dependencies {
 
@@ -36,11 +36,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
 
 	// Observability dependencies
-	implementation 'org.springframework.boot:spring-boot-micrometer-tracing-brave'
 	implementation 'org.springframework.boot:spring-boot-starter-opentelemetry'
-	implementation 'io.micrometer:micrometer-tracing-bridge-brave'
-	implementation 'net.ttddyy.observation:datasource-micrometer-opentelemetry'
-	implementation 'net.ttddyy.observation:datasource-micrometer-spring-boot'
+//	implementation 'net.ttddyy.observation:datasource-micrometer-opentelemetry'
+//	implementation 'net.ttddyy.observation:datasource-micrometer-spring-boot'
 
 	runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 
@@ -59,7 +57,6 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-liquibase-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
 
-	testImplementation 'org.springframework.boot:spring-boot-micrometer-tracing-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-opentelemetry-test'
 
 	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
@@ -70,11 +67,11 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-dependencyManagement {
-	imports {
-		mavenBom "net.ttddyy.observation:datasource-micrometer-bom:${datasourceMicrometerVersion}"
-	}
-}
+//dependencyManagement {
+//	imports {
+//		mavenBom "net.ttddyy.observation:datasource-micrometer-bom:${datasourceMicrometerVersion}"
+//	}
+//}
 
 bootBuildImage {
 	docker {
