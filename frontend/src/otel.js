@@ -11,13 +11,12 @@ const provider = new WebTracerProvider({
   resource: resourceFromAttributes({
     'service.name': 'spring-notes-frontend',
   }),
+  spanProcessors: [
+    new BatchSpanProcessor(
+      new OTLPTraceExporter({ url: '/otlp/v1/traces' })
+    ),
+  ],
 })
-
-provider.addSpanProcessor(
-  new BatchSpanProcessor(
-    new OTLPTraceExporter({ url: '/otlp/v1/traces' })
-  )
-)
 
 provider.register({
   propagator: new CompositePropagator({
@@ -27,7 +26,9 @@ provider.register({
 
 registerInstrumentations({
   instrumentations: [
-    new FetchInstrumentation(),
+    new FetchInstrumentation({
+      ignoreUrls: [/\/otlp\//],
+    }),
     new DocumentLoadInstrumentation(),
   ],
 })
