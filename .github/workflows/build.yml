@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: write
+      checks: write
     steps:
       - uses: actions/checkout@v4
 
@@ -53,15 +53,13 @@ jobs:
           name: java-coverage-report
           path: build/reports/jacoco/test/html/
 
-      - name: Java coverage summary
-        uses: Madrapps/jacoco-report@v1.6.1
+      - name: Java test results
+        uses: dorny/test-reporter@v1
         if: always()
         with:
-          paths: ${{ github.workspace }}/build/reports/jacoco/test/jacocoTestReport.xml
-          token: ${{ secrets.GITHUB_TOKEN }}
-          min-coverage-overall: 0
-          min-coverage-changed-files: 0
-          title: Java Code Coverage
+          name: Java Tests
+          path: build/test-results/test/*.xml
+          reporter: java-junit
 
   build-native-image:
     runs-on: ubuntu-latest
