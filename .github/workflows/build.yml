@@ -28,6 +28,9 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
 
@@ -42,6 +45,23 @@ jobs:
 
       - name: Run tests
         run: ./gradlew test
+
+      - name: Upload Java coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: java-coverage-report
+          path: build/reports/jacoco/test/html/
+
+      - name: Java coverage summary
+        uses: Madrapps/jacoco-report@v1.6.1
+        if: always()
+        with:
+          paths: ${{ github.workspace }}/build/reports/jacoco/test/jacocoTestReport.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 0
+          min-coverage-changed-files: 0
+          title: Java Code Coverage
 
   build-native-image:
     runs-on: ubuntu-latest
