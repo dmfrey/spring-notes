@@ -1,28 +1,33 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useAuth } from './AuthProvider.jsx'
 
-const API_HEADERS = { 'API-Version': '1' }
-
-async function fetchNotes(cursor, limit = 25) {
+async function fetchNotes(cursor, limit = 25, headers) {
   const params = new URLSearchParams({ limit })
   if (cursor) params.set('cursor', cursor)
 
-  const response = await fetch(`/api/notes?${params}`, { headers: API_HEADERS })
+  const response = await fetch(`/api/notes?${params}`, { headers })
   if (!response.ok) throw new Error(`Failed to fetch notes: ${response.status}`)
   return response.json()
 }
 
 export default function App() {
+  const { user } = useAuth()
   const [notes, setNotes] = useState([])
   const [cursor, setCursor] = useState(null)
   const [hasMore, setHasMore] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
+  const authHeaders = {
+    'API-Version': '1',
+    'Authorization': `Bearer ${user.access_token}`,
+  }
+
   const loadNotes = useCallback(async (nextCursor) => {
     setLoading(true)
     setError(null)
     try {
-      const data = await fetchNotes(nextCursor)
+      const data = await fetchNotes(nextCursor, 25, authHeaders)
       setNotes((prev) => nextCursor ? [...prev, ...data.notes] : data.notes)
       setCursor(data.nextCursor ?? null)
       setHasMore(!!data.nextCursor)
@@ -31,7 +36,7 @@ export default function App() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [user.access_token])
 
   useEffect(() => {
     loadNotes(null)
