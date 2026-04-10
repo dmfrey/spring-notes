@@ -92,14 +92,6 @@ tasks.withType(ProcessAot).configureEach {
 	// Locally these fall back to the compose.yaml database.
 }
 
-tasks.named('cyclonedxBom') {
-	jsonOutput = layout.buildDirectory.file('resources/main/META-INF/sbom/bom.json')
-}
-
-tasks.named('processResources') {
-	dependsOn cyclonedxBom
-}
-
 tasks.named('test') {
 	useJUnitPlatform()
 	finalizedBy jacocoTestReport

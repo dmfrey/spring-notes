@@ -16,10 +16,6 @@ management:
     web:
       exposure:
         include: health, info, sbom
-  endpoint:
-    sbom:
-      application:
-        location: classpath:META-INF/sbom/bom.json
   opentelemetry:
     resource-attributes:
       service.name: ${spring.application.name}
