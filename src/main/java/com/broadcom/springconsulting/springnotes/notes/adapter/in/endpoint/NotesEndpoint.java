@@ -4,6 +4,8 @@ import com.broadcom.springconsulting.springnotes.notes.application.domain.model.
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.LoadNotesUseCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,11 +28,12 @@ class NotesEndpoint {
     @GetMapping( version = "1+" )
     NoteSlice loadNotes(
             @RequestParam( required = false ) UUID cursor,
-            @RequestParam( defaultValue = "25" ) int limit
+            @RequestParam( defaultValue = "25" ) int limit,
+            @AuthenticationPrincipal Jwt jwt
     ) {
         log.debug( "Loading notes with cursor {} and limit {}", cursor, limit );
 
-        return loadNotesUseCase.execute( new LoadNotesUseCase.LoadNotesCommand( cursor, limit ) );
+        return loadNotesUseCase.execute( new LoadNotesUseCase.LoadNotesCommand( jwt.getSubject(), cursor, limit ) );
     }
 
 }

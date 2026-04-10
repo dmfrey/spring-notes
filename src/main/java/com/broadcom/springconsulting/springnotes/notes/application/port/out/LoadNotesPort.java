@@ -6,6 +6,6 @@ import java.util.UUID;
 
 public interface LoadNotesPort {
 
-    NoteSlice loadNotes( UUID cursor, int limit );
+    NoteSlice loadNotes( String owner, UUID cursor, int limit );
 
 }

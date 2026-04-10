@@ -7,7 +7,7 @@ import org.springframework.data.relational.core.mapping.Table;
 import java.util.UUID;
 
 @Table( "notes" )
-record NoteEntity( @Id UUID id, String title, String content ) implements Persistable<UUID> {
+record NoteEntity( @Id UUID id, String title, String content, String owner ) implements Persistable<UUID> {
 
     @Override
     public UUID getId() {

@@ -19,6 +19,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Import( { NotesConfiguration.class, TestcontainersConfiguration.class } )
 class NotesPersistenceAdapterTest {
 
+    static final String OWNER = "user-sub-1";
+    static final String OTHER_OWNER = "user-sub-2";
+
     @Autowired
     NotesRepository notesRepository;
 
@@ -33,7 +36,7 @@ class NotesPersistenceAdapterTest {
     @Test
     void loadNotes_emptyTable_returnsEmptySlice() {
 
-        var slice = adapter.loadNotes( null, 25 );
+        var slice = adapter.loadNotes( OWNER, null, 25 );
 
         assertThat( slice.notes() ).isEmpty();
         assertThat( slice.nextCursor() ).isNull();
@@ -46,11 +49,11 @@ class NotesPersistenceAdapterTest {
         UUID id1 = UuidCreator.getTimeOrderedEpoch();
         UUID id2 = UuidCreator.getTimeOrderedEpoch();
         UUID id3 = UuidCreator.getTimeOrderedEpoch();
-        notesRepository.save( new NoteEntity( id1, "Note 1", "Content 1" ) );
-        notesRepository.save( new NoteEntity( id2, "Note 2", "Content 2" ) );
-        notesRepository.save( new NoteEntity( id3, "Note 3", "Content 3" ) );
+        notesRepository.save( new NoteEntity( id1, "Note 1", "Content 1", OWNER ) );
+        notesRepository.save( new NoteEntity( id2, "Note 2", "Content 2", OWNER ) );
+        notesRepository.save( new NoteEntity( id3, "Note 3", "Content 3", OWNER ) );
 
-        var slice = adapter.loadNotes( null, 25 );
+        var slice = adapter.loadNotes( OWNER, null, 25 );
 
         assertThat( slice.notes() ).hasSize( 3 );
         assertThat( slice.notes().get( 0 ).id() ).isEqualTo( id1 );
@@ -66,11 +69,11 @@ class NotesPersistenceAdapterTest {
         UUID id1 = UuidCreator.getTimeOrderedEpoch();
         UUID id2 = UuidCreator.getTimeOrderedEpoch();
         UUID id3 = UuidCreator.getTimeOrderedEpoch();
-        notesRepository.save( new NoteEntity( id1, "Note 1", "Content 1" ) );
-        notesRepository.save( new NoteEntity( id2, "Note 2", "Content 2" ) );
-        notesRepository.save( new NoteEntity( id3, "Note 3", "Content 3" ) );
+        notesRepository.save( new NoteEntity( id1, "Note 1", "Content 1", OWNER ) );
+        notesRepository.save( new NoteEntity( id2, "Note 2", "Content 2", OWNER ) );
+        notesRepository.save( new NoteEntity( id3, "Note 3", "Content 3", OWNER ) );
 
-        var slice = adapter.loadNotes( id1, 25 );
+        var slice = adapter.loadNotes( OWNER, id1, 25 );
 
         assertThat( slice.notes() ).hasSize( 2 );
         assertThat( slice.notes().get( 0 ).id() ).isEqualTo( id2 );
@@ -84,10 +87,10 @@ class NotesPersistenceAdapterTest {
 
         UUID id1 = UuidCreator.getTimeOrderedEpoch();
         UUID id2 = UuidCreator.getTimeOrderedEpoch();
-        notesRepository.save( new NoteEntity( id1, "Note 1", "Content 1" ) );
-        notesRepository.save( new NoteEntity( id2, "Note 2", "Content 2" ) );
+        notesRepository.save( new NoteEntity( id1, "Note 1", "Content 1", OWNER ) );
+        notesRepository.save( new NoteEntity( id2, "Note 2", "Content 2", OWNER ) );
 
-        var slice = adapter.loadNotes( null, 2 );
+        var slice = adapter.loadNotes( OWNER, null, 2 );
 
         assertThat( slice.notes() ).hasSize( 2 );
         assertThat( slice.nextCursor() ).isEqualTo( id2 );
@@ -98,13 +101,28 @@ class NotesPersistenceAdapterTest {
     void loadNotes_limitedPage_returnsOnlyRequestedCount() {
 
         for( int i = 0; i < 5; i++ ) {
-            notesRepository.save( new NoteEntity( UuidCreator.getTimeOrderedEpoch(), "Note " + i, "Content " + i ) );
+            notesRepository.save( new NoteEntity( UuidCreator.getTimeOrderedEpoch(), "Note " + i, "Content " + i, OWNER ) );
         }
 
-        var slice = adapter.loadNotes( null, 3 );
+        var slice = adapter.loadNotes( OWNER, null, 3 );
 
         assertThat( slice.notes() ).hasSize( 3 );
         assertThat( slice.nextCursor() ).isNotNull();
+
+    }
+
+    @Test
+    void loadNotes_onlyReturnsNotesForOwner() {
+
+        UUID id1 = UuidCreator.getTimeOrderedEpoch();
+        UUID id2 = UuidCreator.getTimeOrderedEpoch();
+        notesRepository.save( new NoteEntity( id1, "My Note", "My content", OWNER ) );
+        notesRepository.save( new NoteEntity( id2, "Other Note", "Other content", OTHER_OWNER ) );
+
+        var slice = adapter.loadNotes( OWNER, null, 25 );
+
+        assertThat( slice.notes() ).hasSize( 1 );
+        assertThat( slice.notes().get( 0 ).id() ).isEqualTo( id1 );
 
     }
 

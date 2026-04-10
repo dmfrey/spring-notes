@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: notes-002-add-owner-column
+      author: dmfrey
+      changes:
+        - addColumn:
+            tableName: notes
+            columns:
+              - column:
+                  name: owner
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                  defaultValue: 'system'

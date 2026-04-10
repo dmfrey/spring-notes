@@ -21,6 +21,8 @@ import static org.mockito.Mockito.when;
 @ExtendWith( MockitoExtension.class )
 class LoadNotesServiceTest {
 
+    static final String TEST_OWNER = "test-user-sub";
+
     @Mock
     LoadNotesPort loadNotesPort;
 
@@ -34,14 +36,14 @@ class LoadNotesServiceTest {
     @Test
     void execute_withNoCursor_delegatesToPort() {
 
-        var command = new LoadNotesCommand( null, 25 );
+        var command = new LoadNotesCommand( TEST_OWNER, null, 25 );
         var expected = new NoteSlice( List.of(), null );
-        when( loadNotesPort.loadNotes( null, 25 ) ).thenReturn( expected );
+        when( loadNotesPort.loadNotes( TEST_OWNER, null, 25 ) ).thenReturn( expected );
 
         var result = service.execute( command );
 
         assertThat( result ).isEqualTo( expected );
-        verify( loadNotesPort ).loadNotes( null, 25 );
+        verify( loadNotesPort ).loadNotes( TEST_OWNER, null, 25 );
 
     }
 
@@ -49,26 +51,26 @@ class LoadNotesServiceTest {
     void execute_withCursor_delegatesToPort() {
 
         UUID cursor = UuidCreator.getTimeOrderedEpoch();
-        var command = new LoadNotesCommand( cursor, 10 );
+        var command = new LoadNotesCommand( TEST_OWNER, cursor, 10 );
         var expected = new NoteSlice( List.of(), null );
-        when( loadNotesPort.loadNotes( cursor, 10 ) ).thenReturn( expected );
+        when( loadNotesPort.loadNotes( TEST_OWNER, cursor, 10 ) ).thenReturn( expected );
 
         var result = service.execute( command );
 
         assertThat( result ).isEqualTo( expected );
-        verify( loadNotesPort ).loadNotes( cursor, 10 );
+        verify( loadNotesPort ).loadNotes( TEST_OWNER, cursor, 10 );
 
     }
 
     @Test
     void loadNotesCommand_withZeroLimit_defaultsTo25() {
-        var command = new LoadNotesCommand( null, 0 );
+        var command = new LoadNotesCommand( TEST_OWNER, null, 0 );
         assertThat( command.limit() ).isEqualTo( LoadNotesUseCase.LoadNotesCommand.DEFAULT_LIMIT );
     }
 
     @Test
     void loadNotesCommand_withNegativeLimit_defaultsTo25() {
-        var command = new LoadNotesCommand( null, -5 );
+        var command = new LoadNotesCommand( TEST_OWNER, null, -5 );
         assertThat( command.limit() ).isEqualTo( LoadNotesUseCase.LoadNotesCommand.DEFAULT_LIMIT );
     }
 

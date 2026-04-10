@@ -22,12 +22,12 @@ class NotesPersistenceAdapter implements LoadNotesPort {
     }
 
     @Override
-    public NoteSlice loadNotes( UUID cursor, int limit ) {
-        log.debug( "Loading notes with cursor {} and limit {}", cursor, limit );
+    public NoteSlice loadNotes( String owner, UUID cursor, int limit ) {
+        log.debug( "Loading notes for owner {} with cursor {} and limit {}", owner, cursor, limit );
 
         List<NoteEntity> entities = cursor == null
-                ? notesRepository.findFirst( limit )
-                : notesRepository.findAfterCursor( cursor, limit );
+                ? notesRepository.findFirst( owner, limit )
+                : notesRepository.findAfterCursor( owner, cursor, limit );
 
         List<Note> notes = entities.stream()
                 .map( e -> new Note( e.id(), e.title(), e.content() ) )

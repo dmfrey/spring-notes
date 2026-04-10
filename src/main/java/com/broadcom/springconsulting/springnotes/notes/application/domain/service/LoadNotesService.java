@@ -22,7 +22,7 @@ class LoadNotesService implements LoadNotesUseCase {
     public NoteSlice execute( LoadNotesCommand command ) {
         log.debug( "Loading notes with cursor {} and limit {}", command.cursor(), command.limit() );
 
-        return loadNotesPort.loadNotes( command.cursor(), command.limit() );
+        return loadNotesPort.loadNotes( command.owner(), command.cursor(), command.limit() );
     }
 
 }

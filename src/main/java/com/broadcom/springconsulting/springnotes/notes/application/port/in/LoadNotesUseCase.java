@@ -8,7 +8,7 @@ public interface LoadNotesUseCase {
 
     NoteSlice execute( LoadNotesCommand command );
 
-    record LoadNotesCommand( UUID cursor, int limit ) {
+    record LoadNotesCommand( String owner, UUID cursor, int limit ) {
 
         public static final int DEFAULT_LIMIT = 25;
 
