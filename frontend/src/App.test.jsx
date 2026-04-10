@@ -2,6 +2,10 @@ import { render, screen } from '@testing-library/react'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import App from './App'
 
+vi.mock('./AuthProvider.jsx', () => ({
+  useAuth: () => ({ user: { access_token: 'test-token' } }),
+}))
+
 describe('App', () => {
   beforeEach(() => {
     global.fetch = vi.fn().mockResolvedValue({
