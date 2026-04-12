@@ -12,18 +12,18 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfiguration {
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) {
+    SecurityFilterChain securityFilterChain( HttpSecurity http ) {
 
         http
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/actuator/health/**", "/actuator/info", "/actuator/sbom").permitAll()
+            .authorizeHttpRequests( auth -> auth
+                .requestMatchers( "/actuator/health/**", "/actuator/info", "/actuator/sbom" ).permitAll()
                 .anyRequest().authenticated()
             )
-            .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
-            .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .oauth2ResourceServer( oauth2 -> oauth2.jwt( Customizer.withDefaults() ) )
+            .sessionManagement( session -> session
+                .sessionCreationPolicy( SessionCreationPolicy.STATELESS )
             )
-            .csrf(AbstractHttpConfigurer::disable);
+            .csrf( AbstractHttpConfigurer::disable );
 
         return http.build();
     }
