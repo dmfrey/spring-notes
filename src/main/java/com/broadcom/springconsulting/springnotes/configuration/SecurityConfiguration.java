@@ -16,7 +16,7 @@ public class SecurityConfiguration {
 
         http
             .authorizeHttpRequests( auth -> auth
-                .requestMatchers( "/actuator/health/**", "/actuator/info", "/actuator/sbom" ).permitAll()
+                .requestMatchers( "/actuator/health/**", "/actuator/info", "/actuator/sbom/**" ).permitAll()
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer( oauth2 -> oauth2.jwt( Customizer.withDefaults() ) )
