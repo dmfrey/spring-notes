@@ -49,9 +49,9 @@ class NotesPersistenceAdapterTest {
         UUID id1 = UuidCreator.getTimeOrderedEpoch();
         UUID id2 = UuidCreator.getTimeOrderedEpoch();
         UUID id3 = UuidCreator.getTimeOrderedEpoch();
-        notesRepository.save( new NoteEntity( id1, "Note 1", "Content 1", OWNER ) );
-        notesRepository.save( new NoteEntity( id2, "Note 2", "Content 2", OWNER ) );
-        notesRepository.save( new NoteEntity( id3, "Note 3", "Content 3", OWNER ) );
+        notesRepository.save( new NoteEntity( id1, "Note 1", "Content 1", OWNER, null, null, null, null ) );
+        notesRepository.save( new NoteEntity( id2, "Note 2", "Content 2", OWNER, null, null, null, null ) );
+        notesRepository.save( new NoteEntity( id3, "Note 3", "Content 3", OWNER, null, null, null, null ) );
 
         var slice = adapter.loadNotes( OWNER, null, 25 );
 
@@ -69,9 +69,9 @@ class NotesPersistenceAdapterTest {
         UUID id1 = UuidCreator.getTimeOrderedEpoch();
         UUID id2 = UuidCreator.getTimeOrderedEpoch();
         UUID id3 = UuidCreator.getTimeOrderedEpoch();
-        notesRepository.save( new NoteEntity( id1, "Note 1", "Content 1", OWNER ) );
-        notesRepository.save( new NoteEntity( id2, "Note 2", "Content 2", OWNER ) );
-        notesRepository.save( new NoteEntity( id3, "Note 3", "Content 3", OWNER ) );
+        notesRepository.save( new NoteEntity( id1, "Note 1", "Content 1", OWNER, null, null, null, null ) );
+        notesRepository.save( new NoteEntity( id2, "Note 2", "Content 2", OWNER, null, null, null, null ) );
+        notesRepository.save( new NoteEntity( id3, "Note 3", "Content 3", OWNER, null, null, null, null ) );
 
         var slice = adapter.loadNotes( OWNER, id1, 25 );
 
@@ -87,8 +87,8 @@ class NotesPersistenceAdapterTest {
 
         UUID id1 = UuidCreator.getTimeOrderedEpoch();
         UUID id2 = UuidCreator.getTimeOrderedEpoch();
-        notesRepository.save( new NoteEntity( id1, "Note 1", "Content 1", OWNER ) );
-        notesRepository.save( new NoteEntity( id2, "Note 2", "Content 2", OWNER ) );
+        notesRepository.save( new NoteEntity( id1, "Note 1", "Content 1", OWNER, null, null, null, null ) );
+        notesRepository.save( new NoteEntity( id2, "Note 2", "Content 2", OWNER, null, null, null, null ) );
 
         var slice = adapter.loadNotes( OWNER, null, 2 );
 
@@ -101,7 +101,7 @@ class NotesPersistenceAdapterTest {
     void loadNotes_limitedPage_returnsOnlyRequestedCount() {
 
         for( int i = 0; i < 5; i++ ) {
-            notesRepository.save( new NoteEntity( UuidCreator.getTimeOrderedEpoch(), "Note " + i, "Content " + i, OWNER ) );
+            notesRepository.save( new NoteEntity( UuidCreator.getTimeOrderedEpoch(), "Note " + i, "Content " + i, OWNER, null, null, null, null ) );
         }
 
         var slice = adapter.loadNotes( OWNER, null, 3 );
@@ -116,8 +116,8 @@ class NotesPersistenceAdapterTest {
 
         UUID id1 = UuidCreator.getTimeOrderedEpoch();
         UUID id2 = UuidCreator.getTimeOrderedEpoch();
-        notesRepository.save( new NoteEntity( id1, "My Note", "My content", OWNER ) );
-        notesRepository.save( new NoteEntity( id2, "Other Note", "Other content", OTHER_OWNER ) );
+        notesRepository.save( new NoteEntity( id1, "My Note", "My content", OWNER, null, null, null, null ) );
+        notesRepository.save( new NoteEntity( id2, "Other Note", "Other content", OTHER_OWNER, null, null, null, null ) );
 
         var slice = adapter.loadNotes( OWNER, null, 25 );
 
