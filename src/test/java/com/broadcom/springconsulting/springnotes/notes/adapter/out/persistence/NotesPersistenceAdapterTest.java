@@ -126,4 +126,28 @@ class NotesPersistenceAdapterTest {
 
     }
 
+    @Test
+    void saveNote_persistsNoteAndReturnsItWithGeneratedId() {
+
+        var note = adapter.saveNote( OWNER, "New Note", "Note content" );
+
+        assertThat( note.id() ).isNotNull();
+        assertThat( note.title() ).isEqualTo( "New Note" );
+        assertThat( note.content() ).isEqualTo( "Note content" );
+        assertThat( notesRepository.findById( note.id() ) ).isPresent();
+
+    }
+
+    @Test
+    void saveNote_appearsInSubsequentLoadResults() {
+
+        adapter.saveNote( OWNER, "Saved Note", "Saved content" );
+
+        var slice = adapter.loadNotes( OWNER, null, 25 );
+
+        assertThat( slice.notes() ).hasSize( 1 );
+        assertThat( slice.notes().get( 0 ).title() ).isEqualTo( "Saved Note" );
+
+    }
+
 }

@@ -4,6 +4,7 @@ import com.broadcom.springconsulting.springnotes.configuration.SecurityConfigura
 import com.broadcom.springconsulting.springnotes.configuration.WebConfiguration;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.Note;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.NoteSlice;
+import com.broadcom.springconsulting.springnotes.notes.application.port.in.CreateNoteUseCase;
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.LoadNotesUseCase;
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.LoadNotesUseCase.LoadNotesCommand;
 import com.github.f4b6a3.uuid.UuidCreator;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -18,11 +20,14 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 import java.util.UUID;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -40,6 +45,9 @@ class NotesEndpointTest {
 
     @MockitoBean
     LoadNotesUseCase loadNotesUseCase;
+
+    @MockitoBean
+    CreateNoteUseCase createNoteUseCase;
 
     @Test
     void loadNotes_firstPage_returnsSlice() throws Exception {
@@ -120,6 +128,84 @@ class NotesEndpointTest {
                 .andExpect( jsonPath( "$.notes" ).isArray() )
                 .andExpect( jsonPath( "$.notes.length()" ).value( 0 ) )
                 .andExpect( jsonPath( "$.nextCursor" ).doesNotExist() );
+
+    }
+
+    @Test
+    void createNote_returnsCreatedWithLocationAndBody() throws Exception {
+
+        UUID noteId = UuidCreator.getTimeOrderedEpoch();
+        var note = new Note( noteId, "My Title", "Some content" );
+        when( createNoteUseCase.execute( any() ) ).thenReturn( note );
+
+        mockMvc.perform( post( "/notes" )
+                        .header( "API-Version", "1" )
+                        .contentType( MediaType.APPLICATION_JSON )
+                        .content( """
+                                {"title":"My Title","content":"Some content"}
+                                """ )
+                        .with( jwt().jwt( b -> b.subject( TEST_SUBJECT ) ) ) )
+                .andExpect( status().isCreated() )
+                .andExpect( header().string( "Location", containsString( noteId.toString() ) ) )
+                .andExpect( jsonPath( "$.id" ).value( noteId.toString() ) )
+                .andExpect( jsonPath( "$.title" ).value( "My Title" ) )
+                .andExpect( jsonPath( "$.content" ).value( "Some content" ) );
+
+        verify( createNoteUseCase ).execute( new CreateNoteUseCase.CreateNoteCommand( TEST_SUBJECT, "My Title", "Some content" ) );
+
+    }
+
+    @Test
+    void createNote_withBlankContent_returnsBadRequest() throws Exception {
+
+        mockMvc.perform( post( "/notes" )
+                        .header( "API-Version", "1" )
+                        .contentType( MediaType.APPLICATION_JSON )
+                        .content( """
+                                {"title":"My Title","content":""}
+                                """ )
+                        .with( jwt().jwt( b -> b.subject( TEST_SUBJECT ) ) ) )
+                .andExpect( status().isBadRequest() );
+
+    }
+
+    @Test
+    void createNote_withBlankTitle_returnsBadRequest() throws Exception {
+
+        mockMvc.perform( post( "/notes" )
+                        .header( "API-Version", "1" )
+                        .contentType( MediaType.APPLICATION_JSON )
+                        .content( """
+                                {"title":"","content":"Some content"}
+                                """ )
+                        .with( jwt().jwt( b -> b.subject( TEST_SUBJECT ) ) ) )
+                .andExpect( status().isBadRequest() );
+
+    }
+
+    @Test
+    void createNote_withoutJwt_returnsUnauthorized() throws Exception {
+
+        mockMvc.perform( post( "/notes" )
+                        .header( "API-Version", "1" )
+                        .contentType( MediaType.APPLICATION_JSON )
+                        .content( """
+                                {"title":"My Title","content":"Some content"}
+                                """ ) )
+                .andExpect( status().isUnauthorized() );
+
+    }
+
+    @Test
+    void createNote_withoutApiVersionHeader_returnsBadRequest() throws Exception {
+
+        mockMvc.perform( post( "/notes" )
+                        .contentType( MediaType.APPLICATION_JSON )
+                        .content( """
+                                {"title":"My Title","content":"Some content"}
+                                """ )
+                        .with( jwt().jwt( b -> b.subject( TEST_SUBJECT ) ) ) )
+                .andExpect( status().isBadRequest() );
 
     }
 
