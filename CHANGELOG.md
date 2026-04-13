@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.1](https://github.com/dmfrey/spring-notes/compare/v1.0.0...v1.0.1) (2026-04-12)
+
+
+### Bug Fixes
+
+* **ci:** set JWT issuer URI during native image AOT build ([9a96048](https://github.com/dmfrey/spring-notes/commit/9a9604892a5c11ffc779591b0584b84a8de7addf))
+* suppress JvmGcMetrics in native image to eliminate GC warning ([a4c6b0a](https://github.com/dmfrey/spring-notes/commit/a4c6b0aef17f4d098fb7b72c07c9083cbe8c9c92))
+
 ## 1.0.0 (2026-04-10)
 
 
