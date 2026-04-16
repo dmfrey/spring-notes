@@ -7,6 +7,7 @@ plugins {
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'org.graalvm.buildtools.native' version '0.11.5'
 	id 'org.cyclonedx.bom' version '3.2.3'
+	id 'org.openrewrite.rewrite' version '7.30.0'
 }
 
 group = 'com.broadcom.springconsulting'
@@ -68,6 +69,17 @@ dependencies {
 	testImplementation 'org.testcontainers:testcontainers-postgresql'
 
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	rewrite 'org.openrewrite.recipe:rewrite-spring:6.29.0'
+	rewrite 'org.openrewrite.recipe:rewrite-java-dependencies:1.54.0'
+}
+
+rewrite {
+	activeRecipe(
+		'org.openrewrite.java.spring.boot3.SpringBoot3BestPractices',
+		'org.openrewrite.java.spring.NoAutowiredOnConstructor',
+		'org.openrewrite.java.dependencies.DependencyVulnerabilityCheck'
+	)
 }
 
 dependencyManagement {
