@@ -76,9 +76,8 @@ dependencies {
 
 rewrite {
 	activeRecipe(
-		'org.openrewrite.java.spring.boot3.SpringBoot3BestPractices',
-		'org.openrewrite.java.spring.NoAutowiredOnConstructor',
-		'org.openrewrite.java.dependencies.DependencyVulnerabilityCheck'
+		'org.openrewrite.java.spring.boot3.SpringBoot33BestPractices',
+		'org.openrewrite.java.spring.NoAutowiredOnConstructor'
 	)
 }
 

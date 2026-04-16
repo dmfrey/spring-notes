@@ -44,9 +44,8 @@ jobs:
             This PR was created automatically by the [OpenRewrite](https://docs.openrewrite.org/) workflow.
 
             ### Active recipes
-            - `SpringBoot3BestPractices` — enforces idiomatic Spring Boot 3/4 code patterns
+            - `SpringBoot33BestPractices` — enforces idiomatic Spring Boot 3/4 code patterns
             - `NoAutowiredOnConstructor` — removes redundant `@Autowired` on single constructors
-            - `DependencyVulnerabilityCheck` — flags known CVEs in declared dependencies
 
             ### Review guidance
             - Each commit corresponds to one recipe's changes
