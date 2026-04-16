@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3](https://github.com/dmfrey/spring-notes/compare/v1.0.2...v1.0.3) (2026-04-16)
+
+
+### Bug Fixes
+
+* correct OpenRewrite recipe names ([64b2d77](https://github.com/dmfrey/spring-notes/commit/64b2d77111927165df6ea5325c4fd5343f1f84b6))
+
 ## [1.0.2](https://github.com/dmfrey/spring-notes/compare/v1.0.1...v1.0.2) (2026-04-13)
 
 
