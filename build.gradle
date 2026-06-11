@@ -3,11 +3,11 @@ import org.springframework.boot.gradle.tasks.aot.ProcessAot
 plugins {
 	id 'java'
 	id 'jacoco'
-	id 'org.springframework.boot' version '4.0.5'
+	id 'org.springframework.boot' version '4.1.0'
 	id 'io.spring.dependency-management' version '1.1.7'
-	id 'org.graalvm.buildtools.native' version '0.11.5'
-	id 'org.cyclonedx.bom' version '3.2.3'
-	id 'org.openrewrite.rewrite' version '7.30.0'
+	id 'org.graalvm.buildtools.native' version '1.1.2'
+	id 'org.cyclonedx.bom' version '3.2.4'
+	id 'org.openrewrite.rewrite' version '7.34.0'
 }
 
 group = 'com.broadcom.springconsulting'
@@ -29,7 +29,7 @@ ext {
 
 dependencies {
 
-	implementation 'com.github.f4b6a3:uuid-creator:6.0.0'
+	implementation 'com.github.f4b6a3:uuid-creator:6.1.1'
 
 	// Spring Boot dependencies
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
@@ -70,8 +70,8 @@ dependencies {
 
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-	rewrite 'org.openrewrite.recipe:rewrite-spring:6.29.0'
-	rewrite 'org.openrewrite.recipe:rewrite-java-dependencies:1.54.0'
+	rewrite 'org.openrewrite.recipe:rewrite-spring:6.32.1'
+	rewrite 'org.openrewrite.recipe:rewrite-java-dependencies:1.55.3'
 }
 
 rewrite {
