@@ -4,6 +4,7 @@ import com.broadcom.springconsulting.springnotes.notes.application.domain.model.
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.CreateNoteUseCase.CreateNoteCommand;
 import com.broadcom.springconsulting.springnotes.notes.application.port.out.SaveNotePort;
 import com.github.f4b6a3.uuid.UuidCreator;
+import io.micrometer.observation.ObservationRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,7 +28,7 @@ class CreateNoteServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new CreateNoteService( saveNotePort );
+        service = new CreateNoteService( saveNotePort, ObservationRegistry.NOOP );
     }
 
     @Test

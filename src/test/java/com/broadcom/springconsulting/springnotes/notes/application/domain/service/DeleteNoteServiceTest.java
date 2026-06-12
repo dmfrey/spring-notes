@@ -3,6 +3,7 @@ package com.broadcom.springconsulting.springnotes.notes.application.domain.servi
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.DeleteNoteUseCase.DeleteNoteCommand;
 import com.broadcom.springconsulting.springnotes.notes.application.port.out.DeleteNotePort;
 import com.github.f4b6a3.uuid.UuidCreator;
+import io.micrometer.observation.ObservationRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,7 +22,7 @@ class DeleteNoteServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new DeleteNoteService( deleteNotePort );
+        service = new DeleteNoteService( deleteNotePort, ObservationRegistry.NOOP );
     }
 
     @Test

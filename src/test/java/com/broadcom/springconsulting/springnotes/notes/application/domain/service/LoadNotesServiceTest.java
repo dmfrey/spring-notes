@@ -5,6 +5,7 @@ import com.broadcom.springconsulting.springnotes.notes.application.port.in.LoadN
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.LoadNotesUseCase.LoadNotesCommand;
 import com.broadcom.springconsulting.springnotes.notes.application.port.out.LoadNotesPort;
 import com.github.f4b6a3.uuid.UuidCreator;
+import io.micrometer.observation.ObservationRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,7 +31,7 @@ class LoadNotesServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new LoadNotesService( loadNotesPort );
+        service = new LoadNotesService( loadNotesPort, ObservationRegistry.NOOP );
     }
 
     @Test

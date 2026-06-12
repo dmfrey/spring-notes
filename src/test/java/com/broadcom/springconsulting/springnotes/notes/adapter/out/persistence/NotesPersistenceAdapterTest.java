@@ -3,12 +3,14 @@ package com.broadcom.springconsulting.springnotes.notes.adapter.out.persistence;
 import com.broadcom.springconsulting.springnotes.TestcontainersConfiguration;
 import com.broadcom.springconsulting.springnotes.notes.configuration.NotesConfiguration;
 import com.github.f4b6a3.uuid.UuidCreator;
+import io.micrometer.observation.ObservationRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jdbc.test.autoconfigure.DataJdbcTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.UUID;
 
@@ -21,6 +23,9 @@ class NotesPersistenceAdapterTest {
 
     static final String OWNER = "user-sub-1";
     static final String OTHER_OWNER = "user-sub-2";
+
+    @MockitoBean
+    ObservationRegistry observationRegistry;
 
     @Autowired
     NotesRepository notesRepository;
