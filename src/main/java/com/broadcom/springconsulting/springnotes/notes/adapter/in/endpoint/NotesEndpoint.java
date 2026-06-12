@@ -3,14 +3,17 @@ package com.broadcom.springconsulting.springnotes.notes.adapter.in.endpoint;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.Note;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.NoteSlice;
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.CreateNoteUseCase;
+import com.broadcom.springconsulting.springnotes.notes.application.port.in.DeleteNoteUseCase;
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.LoadNotesUseCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,10 +31,12 @@ class NotesEndpoint {
 
     private final LoadNotesUseCase loadNotesUseCase;
     private final CreateNoteUseCase createNoteUseCase;
+    private final DeleteNoteUseCase deleteNoteUseCase;
 
-    NotesEndpoint( LoadNotesUseCase loadNotesUseCase, CreateNoteUseCase createNoteUseCase ) {
+    NotesEndpoint( LoadNotesUseCase loadNotesUseCase, CreateNoteUseCase createNoteUseCase, DeleteNoteUseCase deleteNoteUseCase ) {
         this.loadNotesUseCase = loadNotesUseCase;
         this.createNoteUseCase = createNoteUseCase;
+        this.deleteNoteUseCase = deleteNoteUseCase;
     }
 
     @GetMapping( version = "1+" )
@@ -57,6 +62,17 @@ class NotesEndpoint {
         var location = uriBuilder.path( "/{id}" ).buildAndExpand( note.id() ).toUri();
 
         return ResponseEntity.created( location ).body( note );
+    }
+
+    @DeleteMapping( value = "/{id}", version = "1+" )
+    ResponseEntity<Void> deleteNote(
+            @PathVariable UUID id
+    ) {
+        log.debug( "Deleting note {}", id );
+
+        deleteNoteUseCase.execute( new DeleteNoteUseCase.DeleteNoteCommand( id ) );
+
+        return ResponseEntity.noContent().build();
     }
 
     @ExceptionHandler( IllegalArgumentException.class )

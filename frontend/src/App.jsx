@@ -20,6 +20,11 @@ async function postNote(title, content, headers) {
   return response.json()
 }
 
+async function deleteNote(id, headers) {
+  const response = await fetch(`/api/notes/${id}`, { method: 'DELETE', headers })
+  if (!response.ok) throw new Error(`Failed to delete note: ${response.status}`)
+}
+
 export default function App() {
   const { user } = useAuth()
   const [notes, setNotes] = useState([])
@@ -35,6 +40,11 @@ export default function App() {
   const [createError, setCreateError] = useState(null)
 
   const dialogRef = useRef(null)
+
+  const [noteToDelete, setNoteToDelete] = useState(null)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState(null)
+  const confirmDialogRef = useRef(null)
 
   const authHeaders = {
     'API-Version': '1',
@@ -70,6 +80,16 @@ export default function App() {
     }
   }, [modalOpen])
 
+  useEffect(() => {
+    const dialog = confirmDialogRef.current
+    if (!dialog) return
+    if (noteToDelete) {
+      dialog.showModal()
+    } else {
+      dialog.close()
+    }
+  }, [noteToDelete])
+
   function openModal() {
     setTitle('')
     setContent('')
@@ -79,6 +99,29 @@ export default function App() {
 
   function closeModal() {
     setModalOpen(false)
+  }
+
+  function openConfirmDelete(note) {
+    setDeleteError(null)
+    setNoteToDelete(note)
+  }
+
+  function cancelDelete() {
+    setNoteToDelete(null)
+  }
+
+  async function handleDeleteConfirm() {
+    setDeleting(true)
+    setDeleteError(null)
+    try {
+      await deleteNote(noteToDelete.id, authHeaders)
+      setNotes((prev) => prev.filter((n) => n.id !== noteToDelete.id))
+      setNoteToDelete(null)
+    } catch (e) {
+      setDeleteError(e.message)
+    } finally {
+      setDeleting(false)
+    }
   }
 
   async function handleCreate(e) {
@@ -112,7 +155,10 @@ export default function App() {
       <ul>
         {notes.map((note) => (
           <li key={note.id}>
-            <h2>{note.title}</h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <h2 style={{ margin: 0 }}>{note.title}</h2>
+              <button onClick={() => openConfirmDelete(note)}>Delete</button>
+            </div>
             <p>{note.content}</p>
           </li>
         ))}
@@ -125,6 +171,18 @@ export default function App() {
       )}
 
       {loading && notes.length === 0 && <p>Loading…</p>}
+
+      <dialog ref={confirmDialogRef} onClose={cancelDelete}>
+        <h2>Delete note?</h2>
+        <p>Are you sure you want to delete &quot;{noteToDelete?.title}&quot;? This cannot be undone.</p>
+        {deleteError && <p role="alert">Error: {deleteError}</p>}
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button onClick={handleDeleteConfirm} disabled={deleting}>
+            {deleting ? 'Deleting…' : 'Delete'}
+          </button>
+          <button onClick={cancelDelete} disabled={deleting}>Cancel</button>
+        </div>
+      </dialog>
 
       <dialog ref={dialogRef} onClose={closeModal}>
         <h2>New Note</h2>

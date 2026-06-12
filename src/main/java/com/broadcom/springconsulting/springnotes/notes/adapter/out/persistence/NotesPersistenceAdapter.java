@@ -2,6 +2,7 @@ package com.broadcom.springconsulting.springnotes.notes.adapter.out.persistence;
 
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.Note;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.NoteSlice;
+import com.broadcom.springconsulting.springnotes.notes.application.port.out.DeleteNotePort;
 import com.broadcom.springconsulting.springnotes.notes.application.port.out.LoadNotesPort;
 import com.broadcom.springconsulting.springnotes.notes.application.port.out.SaveNotePort;
 import com.github.f4b6a3.uuid.UuidCreator;
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-class NotesPersistenceAdapter implements LoadNotesPort, SaveNotePort {
+class NotesPersistenceAdapter implements LoadNotesPort, SaveNotePort, DeleteNotePort {
 
     private static final Logger log = LoggerFactory.getLogger( NotesPersistenceAdapter.class );
 
@@ -48,6 +49,13 @@ class NotesPersistenceAdapter implements LoadNotesPort, SaveNotePort {
         var saved = notesRepository.save( entity );
 
         return new Note( saved.id(), saved.title(), saved.content() );
+    }
+
+    @Override
+    public void deleteNote( UUID id ) {
+        log.debug( "Deleting note {}", id );
+
+        notesRepository.deleteById( id );
     }
 
 }

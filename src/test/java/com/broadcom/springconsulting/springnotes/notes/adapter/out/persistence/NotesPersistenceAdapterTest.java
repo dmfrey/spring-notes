@@ -150,4 +150,31 @@ class NotesPersistenceAdapterTest {
 
     }
 
+    @Test
+    void deleteNote_removesNoteFromDatabase() {
+
+        UUID id = UuidCreator.getTimeOrderedEpoch();
+        notesRepository.save( new NoteEntity( id, "To Delete", "Content", OWNER, null, null, null, null ) );
+
+        adapter.deleteNote( id );
+
+        assertThat( notesRepository.findById( id ) ).isEmpty();
+
+    }
+
+    @Test
+    void deleteNote_onlyDeletesSpecifiedNote() {
+
+        UUID id1 = UuidCreator.getTimeOrderedEpoch();
+        UUID id2 = UuidCreator.getTimeOrderedEpoch();
+        notesRepository.save( new NoteEntity( id1, "Note 1", "Content 1", OWNER, null, null, null, null ) );
+        notesRepository.save( new NoteEntity( id2, "Note 2", "Content 2", OWNER, null, null, null, null ) );
+
+        adapter.deleteNote( id1 );
+
+        assertThat( notesRepository.findById( id1 ) ).isEmpty();
+        assertThat( notesRepository.findById( id2 ) ).isPresent();
+
+    }
+
 }

@@ -5,6 +5,7 @@ import com.broadcom.springconsulting.springnotes.configuration.WebConfiguration;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.Note;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.NoteSlice;
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.CreateNoteUseCase;
+import com.broadcom.springconsulting.springnotes.notes.application.port.in.DeleteNoteUseCase;
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.LoadNotesUseCase;
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.LoadNotesUseCase.LoadNotesCommand;
 import com.github.f4b6a3.uuid.UuidCreator;
@@ -25,6 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -48,6 +50,9 @@ class NotesEndpointTest {
 
     @MockitoBean
     CreateNoteUseCase createNoteUseCase;
+
+    @MockitoBean
+    DeleteNoteUseCase deleteNoteUseCase;
 
     @Test
     void loadNotes_firstPage_returnsSlice() throws Exception {
@@ -204,6 +209,42 @@ class NotesEndpointTest {
                         .content( """
                                 {"title":"My Title","content":"Some content"}
                                 """ )
+                        .with( jwt().jwt( b -> b.subject( TEST_SUBJECT ) ) ) )
+                .andExpect( status().isBadRequest() );
+
+    }
+
+    @Test
+    void deleteNote_returnsNoContent() throws Exception {
+
+        UUID noteId = UuidCreator.getTimeOrderedEpoch();
+
+        mockMvc.perform( delete( "/notes/{id}", noteId )
+                        .header( "API-Version", "1" )
+                        .with( jwt().jwt( b -> b.subject( TEST_SUBJECT ) ) ) )
+                .andExpect( status().isNoContent() );
+
+        verify( deleteNoteUseCase ).execute( new DeleteNoteUseCase.DeleteNoteCommand( noteId ) );
+
+    }
+
+    @Test
+    void deleteNote_withoutJwt_returnsUnauthorized() throws Exception {
+
+        UUID noteId = UuidCreator.getTimeOrderedEpoch();
+
+        mockMvc.perform( delete( "/notes/{id}", noteId )
+                        .header( "API-Version", "1" ) )
+                .andExpect( status().isUnauthorized() );
+
+    }
+
+    @Test
+    void deleteNote_withoutApiVersionHeader_returnsBadRequest() throws Exception {
+
+        UUID noteId = UuidCreator.getTimeOrderedEpoch();
+
+        mockMvc.perform( delete( "/notes/{id}", noteId )
                         .with( jwt().jwt( b -> b.subject( TEST_SUBJECT ) ) ) )
                 .andExpect( status().isBadRequest() );
 
