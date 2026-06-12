@@ -53,8 +53,8 @@ describe('App', () => {
     await screen.findByText('Note A')
     fireEvent.click(screen.getByRole('button', { name: /^delete$/i }))
 
-    expect(await screen.findByText(/are you sure/i)).toBeInTheDocument()
-    expect(screen.getByText(/Note A/)).toBeInTheDocument()
+    const confirmText = await screen.findByText(/are you sure/i)
+    expect(confirmText.closest('dialog')).toHaveAttribute('open')
   })
 
   it('removes note from list after confirmed delete', async () => {
@@ -77,7 +77,7 @@ describe('App', () => {
     fireEvent.click(screen.getByRole('button', { name: /^delete$/i, hidden: true }))
 
     await waitFor(() => {
-      expect(screen.queryByText('Note A')).not.toBeInTheDocument()
+      expect(screen.queryByRole('heading', { name: 'Note A' })).not.toBeInTheDocument()
     })
   })
 
@@ -98,8 +98,8 @@ describe('App', () => {
     fireEvent.click(screen.getByRole('button', { name: /cancel/i }))
 
     await waitFor(() => {
-      expect(screen.queryByText(/are you sure/i)).not.toBeInTheDocument()
+      expect(screen.getByText(/are you sure/i).closest('dialog')).not.toHaveAttribute('open')
     })
-    expect(screen.getByText('Note A')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Note A' })).toBeInTheDocument()
   })
 })
