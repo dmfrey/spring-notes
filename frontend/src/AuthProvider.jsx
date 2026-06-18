@@ -17,17 +17,19 @@ export function AuthProvider({ children }) {
       const config = await loadConfig()
       const mgr = createUserManager(config)
 
-      // Handle OIDC redirect callback
+      // Handle OIDC redirect callback — clean URL first so a failed
+      // exchange doesn't re-trigger this branch on the next render
       if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
+        window.history.replaceState({}, '', '/')
         try {
           const u = await mgr.signinRedirectCallback()
-          window.history.replaceState({}, '', '/')
           if (!cancelled) setUser(u)
+          return
         } catch (e) {
           console.error('OIDC callback error:', e)
-          await mgr.signinRedirect()
+          // Fall through to getUser() — don't redirect immediately or
+          // we create a redirect loop when Authentik is briefly unavailable
         }
-        return
       }
 
       // Use existing session or redirect to login
@@ -35,6 +37,7 @@ export function AuthProvider({ children }) {
       if (cancelled) return
 
       if (!u || u.expired) {
+        await mgr.clearStaleState()
         await mgr.signinRedirect()
         // browser will navigate away; no state update needed
       } else {
