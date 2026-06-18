@@ -12,8 +12,6 @@
     "prEditedNotification",
     "prIgnoreNotification",
   ],
-  // Allow Renovate to run ./gradlew for dependency resolution.
-  allowedUnsafeExecutions: ["gradleWrapper"],
   // Remove hourly PR creation cap; allow up to 15 open Renovate PRs at once.
   prHourlyLimit: 0,
   prConcurrentLimit: 15,
