@@ -1,0 +1,108 @@
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  extends: [
+    "config:recommended",
+    "helpers:pinGitHubActionDigests",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    ":timezone(America/New_York)",
+  ],
+  dependencyDashboardTitle: "Renovate Dashboard 🤖",
+  suppressNotifications: [
+    "prEditedNotification",
+    "prIgnoreNotification",
+  ],
+  // datasourceMicrometerVersion is set via an ext property that Renovate's
+  // gradle manager does not resolve; match it explicitly.
+  customManagers: [
+    {
+      customType: "regex",
+      fileMatch: ["^build\\.gradle$"],
+      matchStrings: [
+        "set\\('datasourceMicrometerVersion',\\s*\"(?<currentValue>[^\"]+)\"\\)",
+      ],
+      depNameTemplate: "net.ttddyy.observation:datasource-micrometer-bom",
+      datasourceTemplate: "maven",
+    },
+  ],
+  packageRules: [
+    // ── Semantic commit scopes ──────────────────────────────────────────
+    {
+      matchManagers: ["gradle", "gradle-wrapper"],
+      semanticCommitScope: "gradle",
+    },
+    {
+      matchManagers: ["npm"],
+      semanticCommitScope: "npm",
+    },
+    {
+      matchManagers: ["github-actions"],
+      semanticCommitType: "ci",
+      semanticCommitScope: "github-action",
+      commitMessageTopic: "action {{depName}}",
+    },
+    // ── Commit message extras by update type ────────────────────────────
+    {
+      matchUpdateTypes: ["major"],
+      semanticCommitType: "feat",
+      commitMessagePrefix: "{{semanticCommitType}}({{semanticCommitScope}})!:",
+      commitMessageExtra: "( {{currentVersion}} ➔ {{newVersion}} )",
+    },
+    {
+      matchUpdateTypes: ["minor"],
+      semanticCommitType: "feat",
+      commitMessageExtra: "( {{currentVersion}} ➔ {{newVersion}} )",
+    },
+    {
+      matchUpdateTypes: ["patch"],
+      semanticCommitType: "fix",
+      commitMessageExtra: "( {{currentVersion}} ➔ {{newVersion}} )",
+    },
+    {
+      matchUpdateTypes: ["digest"],
+      semanticCommitType: "chore",
+      commitMessageExtra: "( {{currentDigestShort}} ➔ {{newDigestShort}} )",
+    },
+    // ── Groups ──────────────────────────────────────────────────────────
+    {
+      description: "Spring Boot group",
+      groupName: "spring-boot",
+      matchPackageNames: [
+        "/org.springframework.boot/",
+        "/io.spring.dependency-management/",
+      ],
+      group: {commitMessageTopic: "{{{groupName}}} group"},
+    },
+    {
+      description: "OpenTelemetry frontend group",
+      groupName: "opentelemetry-frontend",
+      matchPackageNames: ["/^@opentelemetry\\//"],
+      group: {commitMessageTopic: "{{{groupName}}} group"},
+      minimumGroupSize: 2,
+    },
+    {
+      description: "Vite and Vitest group",
+      groupName: "vite-vitest",
+      matchPackageNames: ["/^vite$/", "/^@vitejs\\//", "/^vitest$/", "/^@vitest\\//"],
+      group: {commitMessageTopic: "{{{groupName}}} group"},
+      minimumGroupSize: 2,
+    },
+    {
+      description: "Testing Library group",
+      groupName: "testing-library",
+      matchPackageNames: ["/^@testing-library\\//"],
+      group: {commitMessageTopic: "{{{groupName}}} group"},
+      minimumGroupSize: 2,
+    },
+    // ── Auto-merge ──────────────────────────────────────────────────────
+    {
+      description: "Auto-merge GitHub Actions minor/patch/digest",
+      matchManagers: ["github-actions"],
+      automerge: true,
+      automergeType: "branch",
+      matchUpdateTypes: ["minor", "patch", "digest"],
+      minimumReleaseAge: "3 days",
+      ignoreTests: true,
+    },
+  ],
+}
