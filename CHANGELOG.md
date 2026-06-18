@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.1.0](https://github.com/dmfrey/spring-notes/compare/v1.0.3...v1.1.0) (2026-06-12)
+
+
+### Features
+
+* **notes:** add Micrometer observations to domain services ([79d5570](https://github.com/dmfrey/spring-notes/commit/79d557091ad9d1f1638415520e0074762c334a7a))
+* **notes:** implement delete note with confirmation dialog ([9a15aed](https://github.com/dmfrey/spring-notes/commit/9a15aeda017f0890fe60fd7226b5a3d1bdc05bdd))
+
+
+### Bug Fixes
+
+* **frontend:** scope confirm-dialog delete click with within() ([d4a461f](https://github.com/dmfrey/spring-notes/commit/d4a461fc989032f08a7e8a05ead49918b26c32d1))
+* **frontend:** tighten delete confirmation dialog test assertions ([88108fc](https://github.com/dmfrey/spring-notes/commit/88108fc8390e145d2f2e93348838380cedc1c215))
+* register protobuf reflection hint for GraalVM native image ([eb5d5be](https://github.com/dmfrey/spring-notes/commit/eb5d5bea276455bb8e4e4c95c36fdde7576b892d))
+
 ## [1.0.3](https://github.com/dmfrey/spring-notes/compare/v1.0.2...v1.0.3) (2026-04-16)
 
 
