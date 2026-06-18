@@ -12,6 +12,9 @@
     "prEditedNotification",
     "prIgnoreNotification",
   ],
+  // Remove hourly PR creation cap; allow up to 15 open Renovate PRs at once.
+  prCreationHourlyLimit: 0,
+  prConcurrentLimit: 15,
   // datasourceMicrometerVersion is set via an ext property that Renovate's
   // gradle manager does not resolve; match it explicitly.
   customManagers: [
@@ -93,6 +96,13 @@
       matchPackageNames: ["/^@testing-library\\//"],
       group: {commitMessageTopic: "{{{groupName}}} group"},
       minimumGroupSize: 2,
+    },
+    // ── Release age guard ───────────────────────────────────────────────
+    {
+      description: "Wait 3 days before creating PRs for non-major gradle/npm updates",
+      matchManagers: ["gradle", "gradle-wrapper", "npm"],
+      matchUpdateTypes: ["minor", "patch"],
+      minimumReleaseAge: "3 days",
     },
     // ── Auto-merge ──────────────────────────────────────────────────────
     {
