@@ -1,5 +1,40 @@
 # Changelog
 
+## [3.0.0](https://github.com/dmfrey/spring-notes/compare/v2.0.0...v3.0.0) (2026-08-04)
+
+
+### ⚠ BREAKING CHANGES
+
+* **npm:** Update dependency jsdom ( 29.1.1 ➔ 30.0.0 ) ([#42](https://github.com/dmfrey/spring-notes/issues/42))
+* **github-action:** Update action actions/setup-node ( v6.5.0 ➔ v7.0.0 ) ([#39](https://github.com/dmfrey/spring-notes/issues/39))
+
+### Features
+
+* **github-action:** Update action actions/setup-node ( v6.5.0 ➔ v7.0.0 ) ([#39](https://github.com/dmfrey/spring-notes/issues/39)) ([1e74922](https://github.com/dmfrey/spring-notes/commit/1e74922d626dec05e220a8972d4a4d5d445e6cea))
+* **github-action:** update action renovatebot/github-action ( v46.1.21 ➔ v46.2.0 ) ([d4d0475](https://github.com/dmfrey/spring-notes/commit/d4d04750cd0345a95010eadbeaa93655e8888f20))
+* **gradle:** update dependency org.openrewrite.recipe:rewrite-java-dependencies ( 1.55.3 ➔ 1.60.1 ) ([#29](https://github.com/dmfrey/spring-notes/issues/29)) ([4a80ccb](https://github.com/dmfrey/spring-notes/commit/4a80ccb227e845edaf1b01f599b26852e7d7c53f))
+* **gradle:** update dependency org.openrewrite.recipe:rewrite-spring ( 6.32.1 ➔ 6.36.0 ) ([#30](https://github.com/dmfrey/spring-notes/issues/30)) ([9c52906](https://github.com/dmfrey/spring-notes/commit/9c529063a51c19d418beba90f6f421744ab52c35))
+* **gradle:** update gradle ( 9.5.1 ➔ 9.6.1 ) ([#31](https://github.com/dmfrey/spring-notes/issues/31)) ([91ef10a](https://github.com/dmfrey/spring-notes/commit/91ef10a945f369e7c553b0f4b3d3435bf88af264))
+* **gradle:** update plugin com.gradle.develocity ( 4.4.3 ➔ 4.5.0 ) ([#37](https://github.com/dmfrey/spring-notes/issues/37)) ([f1c5ce1](https://github.com/dmfrey/spring-notes/commit/f1c5ce15fd0dbf35814a63c1debe7bb1bbb15e49))
+* **gradle:** update plugin org.cyclonedx.bom ( 3.2.4 ➔ 3.3.0 ) ([#40](https://github.com/dmfrey/spring-notes/issues/40)) ([7935bd5](https://github.com/dmfrey/spring-notes/commit/7935bd5a37965cb90e9f73b7be06a7e2974ec140))
+* **gradle:** update plugin org.openrewrite.rewrite ( 7.34.0 ➔ 7.38.0 ) ([#32](https://github.com/dmfrey/spring-notes/issues/32)) ([272affb](https://github.com/dmfrey/spring-notes/commit/272affb7a39d51c66ccd3b7ec5e231db0e05e21c))
+* **npm:** Update dependency jsdom ( 29.1.1 ➔ 30.0.0 ) ([#42](https://github.com/dmfrey/spring-notes/issues/42)) ([fe82b98](https://github.com/dmfrey/spring-notes/commit/fe82b984e394538de899ddf4916368772db12fdd))
+* **npm:** update opentelemetry-frontend group ([#38](https://github.com/dmfrey/spring-notes/issues/38)) ([115818a](https://github.com/dmfrey/spring-notes/commit/115818ad67586a10c4d3514909f0b32053dd903e))
+* **npm:** update vite-vitest group ([#35](https://github.com/dmfrey/spring-notes/issues/35)) ([9eef7ce](https://github.com/dmfrey/spring-notes/commit/9eef7ce82a40233e1e8a67efcf6b6aef5374ebce))
+
+
+### Bug Fixes
+
+* **github-action:** update action actions/checkout ( v7.0.0 ➔ v7.0.1 ) ([a5c6b9b](https://github.com/dmfrey/spring-notes/commit/a5c6b9b97d734b17b5250bb435708351eb02b1e6))
+* **github-action:** update action renovatebot/github-action ( v46.1.15 ➔ v46.1.16 ) ([6f954ff](https://github.com/dmfrey/spring-notes/commit/6f954ff613c8f4e36b165077c53fa0c47e10d103))
+* **github-action:** update action renovatebot/github-action ( v46.1.16 ➔ v46.1.17 ) ([b44cb37](https://github.com/dmfrey/spring-notes/commit/b44cb375eaef0d5a0da20e79ea5fef9de583b77f))
+* **github-action:** update action renovatebot/github-action ( v46.1.17 ➔ v46.1.18 ) ([f7a471b](https://github.com/dmfrey/spring-notes/commit/f7a471bbfebca2df2e6da7f93654a27815e56792))
+* **github-action:** update action renovatebot/github-action ( v46.1.18 ➔ v46.1.19 ) ([1457b6f](https://github.com/dmfrey/spring-notes/commit/1457b6f6831b196dfd64c71340a9caf677a7c45f))
+* **github-action:** update action renovatebot/github-action ( v46.1.19 ➔ v46.1.20 ) ([f2316d4](https://github.com/dmfrey/spring-notes/commit/f2316d4f159ef2fe16d156c12d4fe0ec6e7d1b5b))
+* **github-action:** update action renovatebot/github-action ( v46.1.20 ➔ v46.1.21 ) ([b6ec1b7](https://github.com/dmfrey/spring-notes/commit/b6ec1b76719a5014e47efaf8a5f7f3d0fc401f8b))
+* **gradle:** update plugin org.graalvm.buildtools.native ( 1.1.2 ➔ 1.1.7 ) ([#36](https://github.com/dmfrey/spring-notes/issues/36)) ([cca7f05](https://github.com/dmfrey/spring-notes/commit/cca7f0559e1f685358be9ca732972fa0e34be62e))
+* **npm:** update react monorepo ( 19.2.7 ➔ 19.2.8 ) ([#41](https://github.com/dmfrey/spring-notes/issues/41)) ([d3b35c8](https://github.com/dmfrey/spring-notes/commit/d3b35c8424940da31b3cfeb8d223a574146d7ab5))
+
 ## [2.0.0](https://github.com/dmfrey/spring-notes/compare/v1.1.0...v2.0.0) (2026-06-18)
 
 
