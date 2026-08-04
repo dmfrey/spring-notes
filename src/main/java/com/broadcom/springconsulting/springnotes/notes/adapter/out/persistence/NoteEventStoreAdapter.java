@@ -51,13 +51,15 @@ class NoteEventStoreAdapter implements AppendNoteEventPort, LoadNoteEventsPort {
     }
 
     @Override
-    public List<NoteEvent> loadEvents( UUID noteId ) {
+    public List<NoteEvent> loadEvents( UUID noteId, String owner ) {
         log.debug( "Loading events for note {}", noteId );
 
-        var params = new MapSqlParameterSource().addValue( "aggregateId", noteId );
+        var params = new MapSqlParameterSource()
+                .addValue( "aggregateId", noteId )
+                .addValue( "owner", owner );
 
         return jdbcTemplate.query(
-                "SELECT payload FROM note_events WHERE aggregate_id = :aggregateId ORDER BY sequence_number",
+                "SELECT payload FROM note_events WHERE aggregate_id = :aggregateId AND owner = :owner ORDER BY sequence_number",
                 params,
                 ( rs, rowNum ) -> objectMapper.readValue( rs.getString( "payload" ), NoteEvent.class )
         );

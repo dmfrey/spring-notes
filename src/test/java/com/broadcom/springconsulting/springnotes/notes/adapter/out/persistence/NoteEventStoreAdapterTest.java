@@ -1,6 +1,8 @@
 package com.broadcom.springconsulting.springnotes.notes.adapter.out.persistence;
 
 import com.broadcom.springconsulting.springnotes.TestcontainersConfiguration;
+import com.broadcom.springconsulting.springnotes.notes.application.domain.model.Note;
+import com.broadcom.springconsulting.springnotes.notes.application.domain.model.NoteAggregate;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteCreated;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteDeleted;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteUpdated;
@@ -26,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class NoteEventStoreAdapterTest {
 
     static final String OWNER = "user-sub-1";
+    static final String OTHER_OWNER = "user-sub-2";
 
     @Autowired
     DataSource dataSource;
@@ -40,7 +43,7 @@ class NoteEventStoreAdapterTest {
     @Test
     void loadEvents_withNoEvents_returnsEmptyList() {
 
-        var events = adapter.loadEvents( UuidCreator.getTimeOrderedEpoch() );
+        var events = adapter.loadEvents( UuidCreator.getTimeOrderedEpoch(), OWNER );
 
         assertThat( events ).isEmpty();
 
@@ -54,7 +57,7 @@ class NoteEventStoreAdapterTest {
 
         adapter.append( event, OWNER );
 
-        var events = adapter.loadEvents( id );
+        var events = adapter.loadEvents( id, OWNER );
 
         assertThat( events ).containsExactly( event );
 
@@ -72,7 +75,7 @@ class NoteEventStoreAdapterTest {
         adapter.append( updated, OWNER );
         adapter.append( deleted, OWNER );
 
-        var events = adapter.loadEvents( id );
+        var events = adapter.loadEvents( id, OWNER );
 
         assertThat( events ).containsExactly( created, updated, deleted );
 
@@ -89,9 +92,49 @@ class NoteEventStoreAdapterTest {
         adapter.append( event1, OWNER );
         adapter.append( event2, OWNER );
 
-        var events = adapter.loadEvents( id1 );
+        var events = adapter.loadEvents( id1, OWNER );
 
         assertThat( events ).containsExactly( event1 );
+
+    }
+
+    @Test
+    void loadEvents_withMismatchedOwner_returnsEmptyList() {
+
+        var id = UuidCreator.getTimeOrderedEpoch();
+        adapter.append( new NoteCreated( id, OWNER, "Title", "Content", Instant.now() ), OWNER );
+
+        var events = adapter.loadEvents( id, OTHER_OWNER );
+
+        assertThat( events ).isEmpty();
+
+    }
+
+    @Test
+    void hydrate_ofLoadedEvents_reconstructsCurrentState() {
+
+        var id = UuidCreator.getTimeOrderedEpoch();
+
+        adapter.append( new NoteCreated( id, OWNER, "Original Title", "Original content", Instant.now() ), OWNER );
+        adapter.append( new NoteUpdated( id, "Revised Title", "Revised content", Instant.now() ), OWNER );
+
+        var note = NoteAggregate.hydrate( adapter.loadEvents( id, OWNER ) );
+
+        assertThat( note ).contains( new Note( id, "Revised Title", "Revised content" ) );
+
+    }
+
+    @Test
+    void hydrate_ofLoadedEventsAfterDeletion_isEmpty() {
+
+        var id = UuidCreator.getTimeOrderedEpoch();
+
+        adapter.append( new NoteCreated( id, OWNER, "Title", "Content", Instant.now() ), OWNER );
+        adapter.append( new NoteDeleted( id, Instant.now() ), OWNER );
+
+        var note = NoteAggregate.hydrate( adapter.loadEvents( id, OWNER ) );
+
+        assertThat( note ).isEmpty();
 
     }
 

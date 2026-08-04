@@ -4,8 +4,11 @@ import com.broadcom.springconsulting.springnotes.configuration.SecurityConfigura
 import com.broadcom.springconsulting.springnotes.configuration.WebConfiguration;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.Note;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.NoteSlice;
+import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteCreated;
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.CreateNoteUseCase;
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.DeleteNoteUseCase;
+import com.broadcom.springconsulting.springnotes.notes.application.port.in.LoadNoteHistoryUseCase;
+import com.broadcom.springconsulting.springnotes.notes.application.port.in.LoadNoteHistoryUseCase.LoadNoteHistoryCommand;
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.LoadNotesUseCase;
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.LoadNotesUseCase.LoadNotesCommand;
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.UpdateNoteUseCase;
@@ -19,6 +22,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -49,6 +53,9 @@ class NotesEndpointTest {
 
     @MockitoBean
     LoadNotesUseCase loadNotesUseCase;
+
+    @MockitoBean
+    LoadNoteHistoryUseCase loadNoteHistoryUseCase;
 
     @MockitoBean
     CreateNoteUseCase createNoteUseCase;
@@ -214,6 +221,62 @@ class NotesEndpointTest {
                         .content( """
                                 {"title":"My Title","content":"Some content"}
                                 """ )
+                        .with( jwt().jwt( b -> b.subject( TEST_SUBJECT ) ) ) )
+                .andExpect( status().isBadRequest() );
+
+    }
+
+    @Test
+    void loadNoteHistory_returnsEvents() throws Exception {
+
+        UUID noteId = UuidCreator.getTimeOrderedEpoch();
+        var event = new NoteCreated( noteId, TEST_SUBJECT, "Test Note", "Test content", Instant.parse( "2026-01-01T00:00:00Z" ) );
+        when( loadNoteHistoryUseCase.execute( any() ) ).thenReturn( List.of( event ) );
+
+        mockMvc.perform( get( "/notes/{id}/events", noteId )
+                        .header( "API-Version", "1" )
+                        .with( jwt().jwt( b -> b.subject( TEST_SUBJECT ) ) ) )
+                .andExpect( status().isOk() )
+                .andExpect( jsonPath( "$.length()" ).value( 1 ) )
+                .andExpect( jsonPath( "$[0].type" ).value( "NoteCreated" ) )
+                .andExpect( jsonPath( "$[0].title" ).value( "Test Note" ) );
+
+        verify( loadNoteHistoryUseCase ).execute( new LoadNoteHistoryCommand( noteId, TEST_SUBJECT ) );
+
+    }
+
+    @Test
+    void loadNoteHistory_withNoEvents_returnsEmptyArray() throws Exception {
+
+        UUID noteId = UuidCreator.getTimeOrderedEpoch();
+        when( loadNoteHistoryUseCase.execute( any() ) ).thenReturn( List.of() );
+
+        mockMvc.perform( get( "/notes/{id}/events", noteId )
+                        .header( "API-Version", "1" )
+                        .with( jwt().jwt( b -> b.subject( TEST_SUBJECT ) ) ) )
+                .andExpect( status().isOk() )
+                .andExpect( jsonPath( "$" ).isArray() )
+                .andExpect( jsonPath( "$.length()" ).value( 0 ) );
+
+    }
+
+    @Test
+    void loadNoteHistory_withoutJwt_returnsUnauthorized() throws Exception {
+
+        UUID noteId = UuidCreator.getTimeOrderedEpoch();
+
+        mockMvc.perform( get( "/notes/{id}/events", noteId )
+                        .header( "API-Version", "1" ) )
+                .andExpect( status().isUnauthorized() );
+
+    }
+
+    @Test
+    void loadNoteHistory_withoutApiVersionHeader_returnsBadRequest() throws Exception {
+
+        UUID noteId = UuidCreator.getTimeOrderedEpoch();
+
+        mockMvc.perform( get( "/notes/{id}/events", noteId )
                         .with( jwt().jwt( b -> b.subject( TEST_SUBJECT ) ) ) )
                 .andExpect( status().isBadRequest() );
 

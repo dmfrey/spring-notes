@@ -7,6 +7,6 @@ import java.util.UUID;
 
 public interface LoadNoteEventsPort {
 
-    List<NoteEvent> loadEvents( UUID noteId );
+    List<NoteEvent> loadEvents( UUID noteId, String owner );
 
 }
