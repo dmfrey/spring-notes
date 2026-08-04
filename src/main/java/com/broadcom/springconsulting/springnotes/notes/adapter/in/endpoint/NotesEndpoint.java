@@ -5,6 +5,7 @@ import com.broadcom.springconsulting.springnotes.notes.application.domain.model.
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.CreateNoteUseCase;
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.DeleteNoteUseCase;
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.LoadNotesUseCase;
+import com.broadcom.springconsulting.springnotes.notes.application.port.in.UpdateNoteUseCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,11 +33,13 @@ class NotesEndpoint {
 
     private final LoadNotesUseCase loadNotesUseCase;
     private final CreateNoteUseCase createNoteUseCase;
+    private final UpdateNoteUseCase updateNoteUseCase;
     private final DeleteNoteUseCase deleteNoteUseCase;
 
-    NotesEndpoint( LoadNotesUseCase loadNotesUseCase, CreateNoteUseCase createNoteUseCase, DeleteNoteUseCase deleteNoteUseCase ) {
+    NotesEndpoint( LoadNotesUseCase loadNotesUseCase, CreateNoteUseCase createNoteUseCase, UpdateNoteUseCase updateNoteUseCase, DeleteNoteUseCase deleteNoteUseCase ) {
         this.loadNotesUseCase = loadNotesUseCase;
         this.createNoteUseCase = createNoteUseCase;
+        this.updateNoteUseCase = updateNoteUseCase;
         this.deleteNoteUseCase = deleteNoteUseCase;
     }
 
@@ -64,13 +68,27 @@ class NotesEndpoint {
         return ResponseEntity.created( location ).body( note );
     }
 
+    @PutMapping( value = "/{id}", version = "1+" )
+    ResponseEntity<Note> updateNote(
+            @PathVariable UUID id,
+            @RequestBody UpdateNoteRequest request,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        log.debug( "Updating note {}", id );
+
+        var note = updateNoteUseCase.execute( new UpdateNoteUseCase.UpdateNoteCommand( id, jwt.getSubject(), request.title(), request.content() ) );
+
+        return ResponseEntity.ok( note );
+    }
+
     @DeleteMapping( value = "/{id}", version = "1+" )
     ResponseEntity<Void> deleteNote(
-            @PathVariable UUID id
+            @PathVariable UUID id,
+            @AuthenticationPrincipal Jwt jwt
     ) {
         log.debug( "Deleting note {}", id );
 
-        deleteNoteUseCase.execute( new DeleteNoteUseCase.DeleteNoteCommand( id ) );
+        deleteNoteUseCase.execute( new DeleteNoteUseCase.DeleteNoteCommand( id, jwt.getSubject() ) );
 
         return ResponseEntity.noContent().build();
     }
@@ -81,5 +99,7 @@ class NotesEndpoint {
     }
 
     record CreateNoteRequest( String title, String content ) {}
+
+    record UpdateNoteRequest( String title, String content ) {}
 
 }

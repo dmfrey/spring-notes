@@ -8,6 +8,7 @@ import com.broadcom.springconsulting.springnotes.notes.application.port.in.Creat
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.DeleteNoteUseCase;
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.LoadNotesUseCase;
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.LoadNotesUseCase.LoadNotesCommand;
+import com.broadcom.springconsulting.springnotes.notes.application.port.in.UpdateNoteUseCase;
 import com.github.f4b6a3.uuid.UuidCreator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -50,6 +52,9 @@ class NotesEndpointTest {
 
     @MockitoBean
     CreateNoteUseCase createNoteUseCase;
+
+    @MockitoBean
+    UpdateNoteUseCase updateNoteUseCase;
 
     @MockitoBean
     DeleteNoteUseCase deleteNoteUseCase;
@@ -215,6 +220,91 @@ class NotesEndpointTest {
     }
 
     @Test
+    void updateNote_returnsOkWithUpdatedBody() throws Exception {
+
+        UUID noteId = UuidCreator.getTimeOrderedEpoch();
+        var note = new Note( noteId, "New Title", "New content" );
+        when( updateNoteUseCase.execute( any() ) ).thenReturn( note );
+
+        mockMvc.perform( put( "/notes/{id}", noteId )
+                        .header( "API-Version", "1" )
+                        .contentType( MediaType.APPLICATION_JSON )
+                        .content( """
+                                {"title":"New Title","content":"New content"}
+                                """ )
+                        .with( jwt().jwt( b -> b.subject( TEST_SUBJECT ) ) ) )
+                .andExpect( status().isOk() )
+                .andExpect( jsonPath( "$.id" ).value( noteId.toString() ) )
+                .andExpect( jsonPath( "$.title" ).value( "New Title" ) )
+                .andExpect( jsonPath( "$.content" ).value( "New content" ) );
+
+        verify( updateNoteUseCase ).execute( new UpdateNoteUseCase.UpdateNoteCommand( noteId, TEST_SUBJECT, "New Title", "New content" ) );
+
+    }
+
+    @Test
+    void updateNote_withBlankTitle_returnsBadRequest() throws Exception {
+
+        UUID noteId = UuidCreator.getTimeOrderedEpoch();
+
+        mockMvc.perform( put( "/notes/{id}", noteId )
+                        .header( "API-Version", "1" )
+                        .contentType( MediaType.APPLICATION_JSON )
+                        .content( """
+                                {"title":"","content":"New content"}
+                                """ )
+                        .with( jwt().jwt( b -> b.subject( TEST_SUBJECT ) ) ) )
+                .andExpect( status().isBadRequest() );
+
+    }
+
+    @Test
+    void updateNote_withBlankContent_returnsBadRequest() throws Exception {
+
+        UUID noteId = UuidCreator.getTimeOrderedEpoch();
+
+        mockMvc.perform( put( "/notes/{id}", noteId )
+                        .header( "API-Version", "1" )
+                        .contentType( MediaType.APPLICATION_JSON )
+                        .content( """
+                                {"title":"New Title","content":""}
+                                """ )
+                        .with( jwt().jwt( b -> b.subject( TEST_SUBJECT ) ) ) )
+                .andExpect( status().isBadRequest() );
+
+    }
+
+    @Test
+    void updateNote_withoutJwt_returnsUnauthorized() throws Exception {
+
+        UUID noteId = UuidCreator.getTimeOrderedEpoch();
+
+        mockMvc.perform( put( "/notes/{id}", noteId )
+                        .header( "API-Version", "1" )
+                        .contentType( MediaType.APPLICATION_JSON )
+                        .content( """
+                                {"title":"New Title","content":"New content"}
+                                """ ) )
+                .andExpect( status().isUnauthorized() );
+
+    }
+
+    @Test
+    void updateNote_withoutApiVersionHeader_returnsBadRequest() throws Exception {
+
+        UUID noteId = UuidCreator.getTimeOrderedEpoch();
+
+        mockMvc.perform( put( "/notes/{id}", noteId )
+                        .contentType( MediaType.APPLICATION_JSON )
+                        .content( """
+                                {"title":"New Title","content":"New content"}
+                                """ )
+                        .with( jwt().jwt( b -> b.subject( TEST_SUBJECT ) ) ) )
+                .andExpect( status().isBadRequest() );
+
+    }
+
+    @Test
     void deleteNote_returnsNoContent() throws Exception {
 
         UUID noteId = UuidCreator.getTimeOrderedEpoch();
@@ -224,7 +314,7 @@ class NotesEndpointTest {
                         .with( jwt().jwt( b -> b.subject( TEST_SUBJECT ) ) ) )
                 .andExpect( status().isNoContent() );
 
-        verify( deleteNoteUseCase ).execute( new DeleteNoteUseCase.DeleteNoteCommand( noteId ) );
+        verify( deleteNoteUseCase ).execute( new DeleteNoteUseCase.DeleteNoteCommand( noteId, TEST_SUBJECT ) );
 
     }
 

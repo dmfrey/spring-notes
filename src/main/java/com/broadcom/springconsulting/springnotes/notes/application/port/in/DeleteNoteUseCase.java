@@ -6,6 +6,6 @@ public interface DeleteNoteUseCase {
 
     void execute( DeleteNoteCommand command );
 
-    record DeleteNoteCommand( UUID id ) {}
+    record DeleteNoteCommand( UUID id, String owner ) {}
 
 }

@@ -1,18 +1,23 @@
 package com.broadcom.springconsulting.springnotes.notes.application.domain.service;
 
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.Note;
+import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteCreated;
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.CreateNoteUseCase.CreateNoteCommand;
+import com.broadcom.springconsulting.springnotes.notes.application.port.out.AppendNoteEventPort;
 import com.broadcom.springconsulting.springnotes.notes.application.port.out.SaveNotePort;
 import com.github.f4b6a3.uuid.UuidCreator;
 import io.micrometer.observation.ObservationRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -24,11 +29,17 @@ class CreateNoteServiceTest {
     @Mock
     SaveNotePort saveNotePort;
 
+    @Mock
+    AppendNoteEventPort appendNoteEventPort;
+
+    @Captor
+    ArgumentCaptor<NoteCreated> eventCaptor;
+
     CreateNoteService service;
 
     @BeforeEach
     void setUp() {
-        service = new CreateNoteService( saveNotePort, ObservationRegistry.NOOP );
+        service = new CreateNoteService( saveNotePort, appendNoteEventPort, ObservationRegistry.NOOP );
     }
 
     @Test
@@ -42,6 +53,23 @@ class CreateNoteServiceTest {
 
         assertThat( result ).isEqualTo( expected );
         verify( saveNotePort ).saveNote( TEST_OWNER, "My Title", "Some content" );
+
+    }
+
+    @Test
+    void execute_appendsNoteCreatedEvent() {
+
+        var id = UuidCreator.getTimeOrderedEpoch();
+        var expected = new Note( id, "My Title", "Some content" );
+        when( saveNotePort.saveNote( TEST_OWNER, "My Title", "Some content" ) ).thenReturn( expected );
+
+        service.execute( new CreateNoteCommand( TEST_OWNER, "My Title", "Some content" ) );
+
+        verify( appendNoteEventPort ).append( eventCaptor.capture(), eq( TEST_OWNER ) );
+        assertThat( eventCaptor.getValue().noteId() ).isEqualTo( id );
+        assertThat( eventCaptor.getValue().owner() ).isEqualTo( TEST_OWNER );
+        assertThat( eventCaptor.getValue().title() ).isEqualTo( "My Title" );
+        assertThat( eventCaptor.getValue().content() ).isEqualTo( "Some content" );
 
     }
 
