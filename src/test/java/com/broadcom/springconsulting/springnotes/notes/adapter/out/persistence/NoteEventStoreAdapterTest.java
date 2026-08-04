@@ -138,4 +138,44 @@ class NoteEventStoreAdapterTest {
 
     }
 
+    @Test
+    void loadUnpublished_returnsAppendedEvent() {
+
+        var id = UuidCreator.getTimeOrderedEpoch();
+        var event = new NoteCreated( id, OWNER, "Title", "Content", Instant.now() );
+        adapter.append( event, OWNER );
+
+        var unpublished = adapter.loadUnpublished( 10 );
+
+        assertThat( unpublished ).hasSize( 1 );
+        assertThat( unpublished.get( 0 ).event() ).isEqualTo( event );
+
+    }
+
+    @Test
+    void loadUnpublished_respectsLimit() {
+
+        for ( int i = 0; i < 5; i++ ) {
+            adapter.append( new NoteCreated( UuidCreator.getTimeOrderedEpoch(), OWNER, "Title " + i, "Content " + i, Instant.now() ), OWNER );
+        }
+
+        var unpublished = adapter.loadUnpublished( 3 );
+
+        assertThat( unpublished ).hasSize( 3 );
+
+    }
+
+    @Test
+    void markPublished_excludesEventFromSubsequentLoadUnpublished() {
+
+        var id = UuidCreator.getTimeOrderedEpoch();
+        adapter.append( new NoteCreated( id, OWNER, "Title", "Content", Instant.now() ), OWNER );
+        var eventId = adapter.loadUnpublished( 10 ).get( 0 ).eventId();
+
+        adapter.markPublished( eventId );
+
+        assertThat( adapter.loadUnpublished( 10 ) ).isEmpty();
+
+    }
+
 }
