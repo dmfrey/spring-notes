@@ -13,3 +13,8 @@ services:
       - 'POSTGRES_USER=postgres'
     ports:
       - '5432'
+  rabbitmq:
+    image: 'rabbitmq:4-management'
+    ports:
+      - '5672'
+      - '15672'
