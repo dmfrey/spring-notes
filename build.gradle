@@ -71,7 +71,7 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
 	rewrite 'org.openrewrite.recipe:rewrite-spring:6.36.0'
-	rewrite 'org.openrewrite.recipe:rewrite-java-dependencies:1.55.3'
+	rewrite 'org.openrewrite.recipe:rewrite-java-dependencies:1.60.1'
 }
 
 rewrite {
