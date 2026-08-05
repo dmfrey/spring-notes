@@ -111,6 +111,12 @@ tasks.withType(ProcessAot).configureEach {
 tasks.named('test') {
 	useJUnitPlatform()
 	finalizedBy jacocoTestReport
+	testLogging {
+		exceptionFormat = 'full'
+		showCauses = true
+		showExceptions = true
+		showStackTraces = true
+	}
 }
 
 jacocoTestReport {
