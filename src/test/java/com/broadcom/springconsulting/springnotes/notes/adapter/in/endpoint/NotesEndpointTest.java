@@ -4,10 +4,14 @@ import com.broadcom.springconsulting.springnotes.configuration.SecurityConfigura
 import com.broadcom.springconsulting.springnotes.configuration.WebConfiguration;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.Note;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.NoteSlice;
+import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteCreated;
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.CreateNoteUseCase;
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.DeleteNoteUseCase;
+import com.broadcom.springconsulting.springnotes.notes.application.port.in.LoadNoteHistoryUseCase;
+import com.broadcom.springconsulting.springnotes.notes.application.port.in.LoadNoteHistoryUseCase.LoadNoteHistoryCommand;
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.LoadNotesUseCase;
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.LoadNotesUseCase.LoadNotesCommand;
+import com.broadcom.springconsulting.springnotes.notes.application.port.in.UpdateNoteUseCase;
 import com.github.f4b6a3.uuid.UuidCreator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +22,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,6 +34,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -49,7 +55,13 @@ class NotesEndpointTest {
     LoadNotesUseCase loadNotesUseCase;
 
     @MockitoBean
+    LoadNoteHistoryUseCase loadNoteHistoryUseCase;
+
+    @MockitoBean
     CreateNoteUseCase createNoteUseCase;
+
+    @MockitoBean
+    UpdateNoteUseCase updateNoteUseCase;
 
     @MockitoBean
     DeleteNoteUseCase deleteNoteUseCase;
@@ -215,6 +227,147 @@ class NotesEndpointTest {
     }
 
     @Test
+    void loadNoteHistory_returnsEvents() throws Exception {
+
+        UUID noteId = UuidCreator.getTimeOrderedEpoch();
+        var event = new NoteCreated( noteId, TEST_SUBJECT, "Test Note", "Test content", Instant.parse( "2026-01-01T00:00:00Z" ) );
+        when( loadNoteHistoryUseCase.execute( any() ) ).thenReturn( List.of( event ) );
+
+        mockMvc.perform( get( "/notes/{id}/events", noteId )
+                        .header( "API-Version", "1" )
+                        .with( jwt().jwt( b -> b.subject( TEST_SUBJECT ) ) ) )
+                .andExpect( status().isOk() )
+                .andExpect( jsonPath( "$.length()" ).value( 1 ) )
+                .andExpect( jsonPath( "$[0].type" ).value( "NoteCreated" ) )
+                .andExpect( jsonPath( "$[0].title" ).value( "Test Note" ) );
+
+        verify( loadNoteHistoryUseCase ).execute( new LoadNoteHistoryCommand( noteId, TEST_SUBJECT ) );
+
+    }
+
+    @Test
+    void loadNoteHistory_withNoEvents_returnsEmptyArray() throws Exception {
+
+        UUID noteId = UuidCreator.getTimeOrderedEpoch();
+        when( loadNoteHistoryUseCase.execute( any() ) ).thenReturn( List.of() );
+
+        mockMvc.perform( get( "/notes/{id}/events", noteId )
+                        .header( "API-Version", "1" )
+                        .with( jwt().jwt( b -> b.subject( TEST_SUBJECT ) ) ) )
+                .andExpect( status().isOk() )
+                .andExpect( jsonPath( "$" ).isArray() )
+                .andExpect( jsonPath( "$.length()" ).value( 0 ) );
+
+    }
+
+    @Test
+    void loadNoteHistory_withoutJwt_returnsUnauthorized() throws Exception {
+
+        UUID noteId = UuidCreator.getTimeOrderedEpoch();
+
+        mockMvc.perform( get( "/notes/{id}/events", noteId )
+                        .header( "API-Version", "1" ) )
+                .andExpect( status().isUnauthorized() );
+
+    }
+
+    @Test
+    void loadNoteHistory_withoutApiVersionHeader_returnsBadRequest() throws Exception {
+
+        UUID noteId = UuidCreator.getTimeOrderedEpoch();
+
+        mockMvc.perform( get( "/notes/{id}/events", noteId )
+                        .with( jwt().jwt( b -> b.subject( TEST_SUBJECT ) ) ) )
+                .andExpect( status().isBadRequest() );
+
+    }
+
+    @Test
+    void updateNote_returnsOkWithUpdatedBody() throws Exception {
+
+        UUID noteId = UuidCreator.getTimeOrderedEpoch();
+        var note = new Note( noteId, "New Title", "New content" );
+        when( updateNoteUseCase.execute( any() ) ).thenReturn( note );
+
+        mockMvc.perform( put( "/notes/{id}", noteId )
+                        .header( "API-Version", "1" )
+                        .contentType( MediaType.APPLICATION_JSON )
+                        .content( """
+                                {"title":"New Title","content":"New content"}
+                                """ )
+                        .with( jwt().jwt( b -> b.subject( TEST_SUBJECT ) ) ) )
+                .andExpect( status().isOk() )
+                .andExpect( jsonPath( "$.id" ).value( noteId.toString() ) )
+                .andExpect( jsonPath( "$.title" ).value( "New Title" ) )
+                .andExpect( jsonPath( "$.content" ).value( "New content" ) );
+
+        verify( updateNoteUseCase ).execute( new UpdateNoteUseCase.UpdateNoteCommand( noteId, TEST_SUBJECT, "New Title", "New content" ) );
+
+    }
+
+    @Test
+    void updateNote_withBlankTitle_returnsBadRequest() throws Exception {
+
+        UUID noteId = UuidCreator.getTimeOrderedEpoch();
+
+        mockMvc.perform( put( "/notes/{id}", noteId )
+                        .header( "API-Version", "1" )
+                        .contentType( MediaType.APPLICATION_JSON )
+                        .content( """
+                                {"title":"","content":"New content"}
+                                """ )
+                        .with( jwt().jwt( b -> b.subject( TEST_SUBJECT ) ) ) )
+                .andExpect( status().isBadRequest() );
+
+    }
+
+    @Test
+    void updateNote_withBlankContent_returnsBadRequest() throws Exception {
+
+        UUID noteId = UuidCreator.getTimeOrderedEpoch();
+
+        mockMvc.perform( put( "/notes/{id}", noteId )
+                        .header( "API-Version", "1" )
+                        .contentType( MediaType.APPLICATION_JSON )
+                        .content( """
+                                {"title":"New Title","content":""}
+                                """ )
+                        .with( jwt().jwt( b -> b.subject( TEST_SUBJECT ) ) ) )
+                .andExpect( status().isBadRequest() );
+
+    }
+
+    @Test
+    void updateNote_withoutJwt_returnsUnauthorized() throws Exception {
+
+        UUID noteId = UuidCreator.getTimeOrderedEpoch();
+
+        mockMvc.perform( put( "/notes/{id}", noteId )
+                        .header( "API-Version", "1" )
+                        .contentType( MediaType.APPLICATION_JSON )
+                        .content( """
+                                {"title":"New Title","content":"New content"}
+                                """ ) )
+                .andExpect( status().isUnauthorized() );
+
+    }
+
+    @Test
+    void updateNote_withoutApiVersionHeader_returnsBadRequest() throws Exception {
+
+        UUID noteId = UuidCreator.getTimeOrderedEpoch();
+
+        mockMvc.perform( put( "/notes/{id}", noteId )
+                        .contentType( MediaType.APPLICATION_JSON )
+                        .content( """
+                                {"title":"New Title","content":"New content"}
+                                """ )
+                        .with( jwt().jwt( b -> b.subject( TEST_SUBJECT ) ) ) )
+                .andExpect( status().isBadRequest() );
+
+    }
+
+    @Test
     void deleteNote_returnsNoContent() throws Exception {
 
         UUID noteId = UuidCreator.getTimeOrderedEpoch();
@@ -224,7 +377,7 @@ class NotesEndpointTest {
                         .with( jwt().jwt( b -> b.subject( TEST_SUBJECT ) ) ) )
                 .andExpect( status().isNoContent() );
 
-        verify( deleteNoteUseCase ).execute( new DeleteNoteUseCase.DeleteNoteCommand( noteId ) );
+        verify( deleteNoteUseCase ).execute( new DeleteNoteUseCase.DeleteNoteCommand( noteId, TEST_SUBJECT ) );
 
     }
 

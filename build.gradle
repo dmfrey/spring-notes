@@ -33,6 +33,7 @@ dependencies {
 
 	// Spring Boot dependencies
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-amqp'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
 	implementation 'org.springframework.boot:spring-boot-starter-liquibase'
 	implementation 'org.springframework.boot:spring-boot-starter-security-oauth2-resource-server'
@@ -56,6 +57,7 @@ dependencies {
 
 	// Test dependencies
 	testImplementation 'org.springframework.boot:spring-boot-starter-actuator-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-amqp-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-data-jdbc-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-liquibase-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-security-oauth2-resource-server-test'
@@ -67,6 +69,7 @@ dependencies {
 	testImplementation 'org.testcontainers:testcontainers-grafana'
 	testImplementation 'org.testcontainers:testcontainers-junit-jupiter'
 	testImplementation 'org.testcontainers:testcontainers-postgresql'
+	testImplementation 'org.testcontainers:testcontainers-rabbitmq'
 
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
@@ -108,6 +111,12 @@ tasks.withType(ProcessAot).configureEach {
 tasks.named('test') {
 	useJUnitPlatform()
 	finalizedBy jacocoTestReport
+	testLogging {
+		exceptionFormat = 'full'
+		showCauses = true
+		showExceptions = true
+		showStackTraces = true
+	}
 }
 
 jacocoTestReport {

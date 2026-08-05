@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: notes-005-add-note-events-published-at-column
+      author: dmfrey
+      changes:
+        - addColumn:
+            tableName: note_events
+            columns:
+              - column:
+                  name: published_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: true
+        - createIndex:
+            tableName: note_events
+            indexName: idx_note_events_published_at
+            columns:
+              - column:
+                  name: published_at

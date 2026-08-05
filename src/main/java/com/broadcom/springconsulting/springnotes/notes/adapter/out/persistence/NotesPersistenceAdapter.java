@@ -5,16 +5,18 @@ import com.broadcom.springconsulting.springnotes.notes.application.domain.model.
 import com.broadcom.springconsulting.springnotes.notes.application.port.out.DeleteNotePort;
 import com.broadcom.springconsulting.springnotes.notes.application.port.out.LoadNotesPort;
 import com.broadcom.springconsulting.springnotes.notes.application.port.out.SaveNotePort;
+import com.broadcom.springconsulting.springnotes.notes.application.port.out.UpdateNoteProjectionPort;
 import com.github.f4b6a3.uuid.UuidCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
 @Repository
-class NotesPersistenceAdapter implements LoadNotesPort, SaveNotePort, DeleteNotePort {
+class NotesPersistenceAdapter implements LoadNotesPort, SaveNotePort, DeleteNotePort, UpdateNoteProjectionPort {
 
     private static final Logger log = LoggerFactory.getLogger( NotesPersistenceAdapter.class );
 
@@ -56,6 +58,13 @@ class NotesPersistenceAdapter implements LoadNotesPort, SaveNotePort, DeleteNote
         log.debug( "Deleting note {}", id );
 
         notesRepository.deleteById( id );
+    }
+
+    @Override
+    public void updateProjection( UUID id, String title, String content, String owner, Instant occurredAt ) {
+        log.debug( "Updating projection for note {}", id );
+
+        notesRepository.updateProjection( id, title, content, owner, occurredAt, owner );
     }
 
 }

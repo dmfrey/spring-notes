@@ -12,6 +12,7 @@ import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabas
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import java.time.Instant;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -179,6 +180,34 @@ class NotesPersistenceAdapterTest {
 
         assertThat( notesRepository.findById( id1 ) ).isEmpty();
         assertThat( notesRepository.findById( id2 ) ).isPresent();
+
+    }
+
+    @Test
+    void updateProjection_updatesTitleAndContent() {
+
+        UUID id = UuidCreator.getTimeOrderedEpoch();
+        notesRepository.save( new NoteEntity( id, "Original Title", "Original content", OWNER, null, null, null, null ) );
+
+        adapter.updateProjection( id, "New Title", "New content", OWNER, Instant.now() );
+
+        var updated = notesRepository.findById( id ).orElseThrow();
+        assertThat( updated.title() ).isEqualTo( "New Title" );
+        assertThat( updated.content() ).isEqualTo( "New content" );
+
+    }
+
+    @Test
+    void updateProjection_withMismatchedOwner_doesNotUpdate() {
+
+        UUID id = UuidCreator.getTimeOrderedEpoch();
+        notesRepository.save( new NoteEntity( id, "Original Title", "Original content", OWNER, null, null, null, null ) );
+
+        adapter.updateProjection( id, "New Title", "New content", OTHER_OWNER, Instant.now() );
+
+        var unchanged = notesRepository.findById( id ).orElseThrow();
+        assertThat( unchanged.title() ).isEqualTo( "Original Title" );
+        assertThat( unchanged.content() ).isEqualTo( "Original content" );
 
     }
 
