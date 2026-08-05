@@ -23,6 +23,11 @@ on:
       - 'gradlew.bat'
       - '.github/workflows/build.yml'
   workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Extra tag to push the built image under (e.g. v3.1.0) - for backfilling a release image when the automatic tag-triggered build was skipped'
+        required: false
+        type: string
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -123,6 +128,8 @@ jobs:
             -PregistryPassword=${{ secrets.GITHUB_TOKEN }}
 
       - name: Tag image
+        env:
+          EXTRA_TAG: ${{ github.event.inputs.image_tag }}
         run: |
           IMAGE=ghcr.io/${{ github.repository }}
           docker pull ${IMAGE}:${{ github.sha }}
@@ -131,4 +138,7 @@ jobs:
           if [[ "${{ github.ref_type }}" == "tag" ]]; then
             docker tag ${IMAGE}:${{ github.sha }} ${IMAGE}:${{ github.ref_name }}
             docker push ${IMAGE}:${{ github.ref_name }}
+          elif [[ -n "${EXTRA_TAG}" ]]; then
+            docker tag ${IMAGE}:${{ github.sha }} ${IMAGE}:${EXTRA_TAG}
+            docker push ${IMAGE}:${EXTRA_TAG}
           fi
