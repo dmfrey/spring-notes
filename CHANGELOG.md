@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.1.0](https://github.com/dmfrey/spring-notes/compare/v3.0.0...v3.1.0) (2026-08-05)
+
+
+### Features
+
+* **notes:** migrate notes to event sourcing, add Update, publish events via RabbitMQ ([#44](https://github.com/dmfrey/spring-notes/issues/44)) ([e0695ea](https://github.com/dmfrey/spring-notes/commit/e0695eadbdb70bb4226d9fd666dcdd95b8dc46bf))
+
 ## [3.0.0](https://github.com/dmfrey/spring-notes/compare/v2.0.0...v3.0.0) (2026-08-04)
 
 
