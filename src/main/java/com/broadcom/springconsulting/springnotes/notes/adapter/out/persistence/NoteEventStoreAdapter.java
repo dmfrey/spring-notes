@@ -14,6 +14,7 @@ import org.springframework.stereotype.Repository;
 import tools.jackson.databind.ObjectMapper;
 
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,7 +44,10 @@ class NoteEventStoreAdapter implements AppendNoteEventPort, LoadNoteEventsPort, 
                 .addValue( "owner", owner )
                 .addValue( "type", event.getClass().getSimpleName() )
                 .addValue( "payload", objectMapper.writeValueAsString( event ) )
-                .addValue( "occurredAt", event.occurredAt() );
+                // pgjdbc's setObject() can't infer a SQL type for java.time.Instant - only
+                // OffsetDateTime/LocalDateTime are handled directly (verified against the real
+                // PgPreparedStatement source).
+                .addValue( "occurredAt", event.occurredAt().atOffset( ZoneOffset.UTC ) );
 
         jdbcTemplate.update( """
                 INSERT INTO note_events (id, aggregate_id, owner, type, payload, sequence_number, occurred_at)
@@ -90,7 +94,7 @@ class NoteEventStoreAdapter implements AppendNoteEventPort, LoadNoteEventsPort, 
 
         var params = new MapSqlParameterSource()
                 .addValue( "id", eventId )
-                .addValue( "publishedAt", Instant.now() );
+                .addValue( "publishedAt", Instant.now().atOffset( ZoneOffset.UTC ) );
 
         jdbcTemplate.update( "UPDATE note_events SET published_at = :publishedAt WHERE id = :id", params );
     }
