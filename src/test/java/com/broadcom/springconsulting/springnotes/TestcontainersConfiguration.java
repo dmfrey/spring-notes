@@ -1,5 +1,6 @@
 package com.broadcom.springconsulting.springnotes;
 
+import io.micrometer.observation.ObservationRegistry;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
@@ -22,6 +23,15 @@ public class TestcontainersConfiguration {
 	@ConditionalOnMissingBean(ObjectMapper.class)
 	ObjectMapper objectMapper() {
 		return JsonMapper.builder().build();
+	}
+
+	// @DataJdbcTest slices don't autoconfigure Micrometer Observation either, but
+	// NotesConfiguration's component scan pulls in every application service (LoadNotesService,
+	// CreateNoteService, etc.), all of which take an ObservationRegistry constructor parameter.
+	@Bean
+	@ConditionalOnMissingBean(ObservationRegistry.class)
+	ObservationRegistry observationRegistry() {
+		return ObservationRegistry.NOOP;
 	}
 
 	@Bean
