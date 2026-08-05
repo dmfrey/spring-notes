@@ -3,6 +3,7 @@ package com.broadcom.springconsulting.springnotes.notes.adapter.out.persistence;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.Note;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.NoteSlice;
 import com.broadcom.springconsulting.springnotes.notes.application.port.out.DeleteNotePort;
+import com.broadcom.springconsulting.springnotes.notes.application.port.out.LoadNotesMissingEventsPort;
 import com.broadcom.springconsulting.springnotes.notes.application.port.out.LoadNotesPort;
 import com.broadcom.springconsulting.springnotes.notes.application.port.out.SaveNotePort;
 import com.broadcom.springconsulting.springnotes.notes.application.port.out.UpdateNoteProjectionPort;
@@ -16,7 +17,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-class NotesPersistenceAdapter implements LoadNotesPort, SaveNotePort, DeleteNotePort, UpdateNoteProjectionPort {
+class NotesPersistenceAdapter implements LoadNotesPort, SaveNotePort, DeleteNotePort, UpdateNoteProjectionPort, LoadNotesMissingEventsPort {
 
     private static final Logger log = LoggerFactory.getLogger( NotesPersistenceAdapter.class );
 
@@ -65,6 +66,15 @@ class NotesPersistenceAdapter implements LoadNotesPort, SaveNotePort, DeleteNote
         log.debug( "Updating projection for note {}", id );
 
         notesRepository.updateProjection( id, title, content, owner, occurredAt, owner );
+    }
+
+    @Override
+    public List<NoteSnapshot> loadNotesMissingEvents() {
+        log.debug( "Loading notes missing an event history" );
+
+        return notesRepository.findMissingEvents().stream()
+                .map( e -> new NoteSnapshot( e.id(), e.owner(), e.title(), e.content(), e.createdDate() ) )
+                .toList();
     }
 
 }

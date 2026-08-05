@@ -17,6 +17,11 @@ interface NotesRepository extends ListCrudRepository<NoteEntity, UUID> {
     @Query( "SELECT * FROM notes WHERE owner = :owner AND id > :cursor ORDER BY id LIMIT :limit" )
     List<NoteEntity> findAfterCursor( @Param( "owner" ) String owner, @Param( "cursor" ) UUID cursor, @Param( "limit" ) int limit );
 
+    // note_events.aggregate_id is the leading column of the unique constraint on
+    // (aggregate_id, sequence_number), so this anti-join is index-backed.
+    @Query( "SELECT n.* FROM notes n WHERE NOT EXISTS ( SELECT 1 FROM note_events e WHERE e.aggregate_id = n.id )" )
+    List<NoteEntity> findMissingEvents();
+
     // save() always inserts (NoteEntity.isNew() is hardcoded true for client-generated ids), so
     // updates go through this explicit statement instead - which also means it must set the
     // auditing columns itself, since @EnableJdbcAuditing only hooks save().
