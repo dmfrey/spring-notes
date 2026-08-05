@@ -1,6 +1,7 @@
 package com.broadcom.springconsulting.springnotes.notes.adapter.out.persistence;
 
 import com.broadcom.springconsulting.springnotes.TestcontainersConfiguration;
+import com.broadcom.springconsulting.springnotes.notes.application.port.out.LoadNotesMissingEventsPort;
 import com.broadcom.springconsulting.springnotes.notes.configuration.NotesConfiguration;
 import com.github.f4b6a3.uuid.UuidCreator;
 import io.micrometer.observation.ObservationRegistry;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jdbc.test.autoconfigure.DataJdbcTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.context.annotation.Import;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.Instant;
@@ -30,6 +32,9 @@ class NotesPersistenceAdapterTest {
 
     @Autowired
     NotesRepository notesRepository;
+
+    @Autowired
+    JdbcTemplate jdbcTemplate;
 
     NotesPersistenceAdapter adapter;
 
@@ -208,6 +213,35 @@ class NotesPersistenceAdapterTest {
         var unchanged = notesRepository.findById( id ).orElseThrow();
         assertThat( unchanged.title() ).isEqualTo( "Original Title" );
         assertThat( unchanged.content() ).isEqualTo( "Original content" );
+
+    }
+
+    @Test
+    void loadNotesMissingEvents_returnsOnlyNotesWithoutAnEvent() {
+
+        UUID withEvent = UuidCreator.getTimeOrderedEpoch();
+        UUID withoutEvent = UuidCreator.getTimeOrderedEpoch();
+        notesRepository.save( new NoteEntity( withEvent, "Has Event", "Content", OWNER, null, null, null, null ) );
+        notesRepository.save( new NoteEntity( withoutEvent, "No Event", "Content", OWNER, null, null, null, null ) );
+
+        jdbcTemplate.update(
+                "INSERT INTO note_events (id, aggregate_id, owner, type, payload, sequence_number, occurred_at) " +
+                        "VALUES (?, ?, ?, 'NoteCreated', '{}'::jsonb, 1, now())",
+                UuidCreator.getTimeOrderedEpoch(), withEvent, OWNER
+        );
+
+        var missing = adapter.loadNotesMissingEvents();
+
+        assertThat( missing )
+                .extracting( LoadNotesMissingEventsPort.NoteSnapshot::id )
+                .containsExactly( withoutEvent );
+
+    }
+
+    @Test
+    void loadNotesMissingEvents_withNoNotesAtAll_returnsEmpty() {
+
+        assertThat( adapter.loadNotesMissingEvents() ).isEmpty();
 
     }
 
