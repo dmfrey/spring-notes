@@ -140,6 +140,41 @@ The CI workflow builds a native container image via Cloud Native Buildpacks:
 
 Registry credentials are passed as Gradle properties (`-PregistryUrl`, `-PregistryUsername`, `-PregistryPassword`).
 
+### GraalVM reflection gaps (known issue class)
+
+This app has hit GraalVM's native-image reflection gap twice: once for protobuf/OTLP
+(`MetricsConfiguration.ProtobufRuntimeHints`), once for Liquibase
+(`LiquibaseConfiguration.ChangeRuntimeHints`, added 2026-08-06 to fix a production outage). The
+pattern: a library reflectively invokes a method GraalVM's default reachability metadata doesn't
+cover, and the native image throws `Cannot reflectively invoke method '...'` at *runtime* instead
+of failing to build — CI's `test` job never catches this, since it runs on the JVM, not the
+native image. Fix by adding a `RuntimeHintsRegistrar` (`@ImportRuntimeHints`) registering the
+missing type/method; see either class for the pattern.
+
+**Liquibase specifically**: it reflectively calls each `Change`/config class's bean-property
+getters to compute a changeset's checksum, and does this on *every* startup to re-validate
+already-applied changesets against `DATABASECHANGELOG` — not just when a changeset first runs.
+A missing reflection hint can therefore pass a first deploy cleanly (fresh migration takes a
+different code path) and then crash-loop on every restart afterward. This is exactly how the
+2026-08-06 incident slipped past both CI and the first production deploy.
+
+**When testing a Liquibase reflection fix, you must restart the app at least twice against the
+same already-migrated database** — testing only a fresh/first boot will not catch this class of
+bug:
+
+```bash
+./gradlew bootBuildImage          # builds a local image, no push (omit -Pregistry* / --publishImage)
+podman compose up -d postgres     # or your local Postgres, from compose.yaml
+podman run --rm --network host --env SPRING_DATASOURCE_URL=... spring-notes:<tag>   # first boot: applies migrations
+# stop it, then run the exact same command again
+podman run --rm --network host --env SPRING_DATASOURCE_URL=... spring-notes:<tag>   # second boot: re-validates checksums - this is the one that actually exercises the bug
+```
+
+`LiquibaseConfiguration.ChangeRuntimeHints` currently covers every `Change`/config class this
+app's changelogs use (`CreateTableChange`, `AddColumnChange`, `AddUniqueConstraintChange`,
+`CreateIndexChange`, `ColumnConfig`, `AddColumnConfig`, `ConstraintsConfig`). A new changeset
+using a different Liquibase `Change` type not in that list may need a new entry.
+
 ### CI/CD
 
 GitHub Actions (`.github/workflows/build.yml`):
