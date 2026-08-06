@@ -92,6 +92,10 @@ dependencyManagement {
 
 bootBuildImage {
 	docker {
+		// Rootless Podman has no /var/run/docker.sock, so the plugin must bind the
+		// DOCKER_HOST socket it resolves into the lifecycle containers instead of
+		// defaulting to that hardcoded path (default: false, which breaks Podman).
+		bindHostToBuilder = true
 		publishRegistry {
 			url = findProperty('registryUrl') ?: 'https://ghcr.io'
 			username = findProperty('registryUsername') ?: ''
