@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.0](https://github.com/dmfrey/spring-notes/compare/v3.1.0...v3.2.0) (2026-08-05)
+
+
+### Features
+
+* **notes:** backfill NoteCreated events for pre-migration notes ([#48](https://github.com/dmfrey/spring-notes/issues/48)) ([f17d0e1](https://github.com/dmfrey/spring-notes/commit/f17d0e1ffa5ab0b21c5e81f784aa5247399e2ca9))
+
 ## [3.1.0](https://github.com/dmfrey/spring-notes/compare/v3.0.0...v3.1.0) (2026-08-05)
 
 
