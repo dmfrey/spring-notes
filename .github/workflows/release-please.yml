@@ -18,3 +18,10 @@ jobs:
       - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5
         with:
           release-type: simple
+          # Using the default GITHUB_TOKEN here means the tags/releases this action creates
+          # never trigger other workflow runs (GitHub's anti-recursion rule) - confirmed via
+          # history: no push to build.yml's tags:["v*"] trigger has ever fired for any past
+          # release. A PAT with Contents: read/write on this repo, stored as the
+          # RELEASE_PLEASE_TOKEN secret, sidesteps that restriction so tag pushes correctly
+          # kick off the Build workflow and its versioned image push going forward.
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
