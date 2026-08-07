@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.2.1](https://github.com/dmfrey/spring-notes/compare/v3.2.0...v3.2.1) (2026-08-07)
+
+
+### Bug Fixes
+
+* **github-action:** update action renovatebot/github-action ( v46.2.0 ➔ v46.2.1 ) ([54010da](https://github.com/dmfrey/spring-notes/commit/54010da84704b7c03fa032141906ad73cc4fb256))
+* **gradle:** bind resolved DOCKER_HOST socket into bootBuildImage lifecycle containers ([3cb117a](https://github.com/dmfrey/spring-notes/commit/3cb117a7e6fc320ebbe27d9eea8ec133685c79b6))
+* register GraalVM reflection hints for Liquibase Change classes ([#51](https://github.com/dmfrey/spring-notes/issues/51)) ([c285772](https://github.com/dmfrey/spring-notes/commit/c285772d450f382bd11909b46b07eeb8f5315704))
+
 ## [3.2.0](https://github.com/dmfrey/spring-notes/compare/v3.1.0...v3.2.0) (2026-08-05)
 
 
