@@ -142,14 +142,23 @@ Registry credentials are passed as Gradle properties (`-PregistryUrl`, `-Pregist
 
 ### GraalVM reflection gaps (known issue class)
 
-This app has hit GraalVM's native-image reflection gap twice: once for protobuf/OTLP
+This app has hit GraalVM's native-image reflection gap three times: once for protobuf/OTLP
 (`MetricsConfiguration.ProtobufRuntimeHints`), once for Liquibase
-(`LiquibaseConfiguration.ChangeRuntimeHints`, added 2026-08-06 to fix a production outage). The
-pattern: a library reflectively invokes a method GraalVM's default reachability metadata doesn't
-cover, and the native image throws `Cannot reflectively invoke method '...'` at *runtime* instead
-of failing to build — CI's `test` job never catches this, since it runs on the JVM, not the
-native image. Fix by adding a `RuntimeHintsRegistrar` (`@ImportRuntimeHints`) registering the
-missing type/method; see either class for the pattern.
+(`LiquibaseConfiguration.ChangeRuntimeHints`, added 2026-08-06 to fix a production outage), and
+once for the notes event records (`NotesConfiguration.NoteEventRuntimeHints`, added 2026-08-08,
+also a production outage). The pattern: something reflectively invokes a method or accessor
+GraalVM's default reachability metadata doesn't cover, and the native image throws an
+`UnsupportedFeatureError`/`Cannot reflectively invoke method '...'` at *runtime* instead of
+failing to build — CI's `test` job never catches this, since it runs on the JVM, not the native
+image. Fix by adding a `RuntimeHintsRegistrar` (`@ImportRuntimeHints`) registering the missing
+type/method; see any of the three classes for the pattern.
+
+**The general lesson from both outages: verifying a reflection-hint fix means booting the real
+native image *and exercising the specific code path* that performs the reflective call** — a
+successful app boot proves nothing on its own if the reflective call only happens later, in
+response to a request. Both production incidents passed a boot-only smoke test before shipping;
+neither would have passed a test that also exercised the actual behavior (a second boot against
+an already-migrated database, or an actual note creation through the API).
 
 **Liquibase specifically**: it reflectively calls each `Change`/config class's bean-property
 getters to compute a changeset's checksum, and does this on *every* startup to re-validate
@@ -174,6 +183,23 @@ podman run --rm --network host --env SPRING_DATASOURCE_URL=... spring-notes:<tag
 app's changelogs use (`CreateTableChange`, `AddColumnChange`, `AddUniqueConstraintChange`,
 `CreateIndexChange`, `ColumnConfig`, `AddColumnConfig`, `ConstraintsConfig`). A new changeset
 using a different Liquibase `Change` type not in that list may need a new entry.
+
+**NoteEvent records specifically**: `NoteCreated`/`NoteUpdated`/`NoteDeleted` are serialized by
+Jackson via a plain `ObjectMapper` call inside `NoteEventStoreAdapter` (event store persistence)
+and `NoteEventPublisherAdapter` (RabbitMQ publish) — not an MVC controller signature. Spring
+AOT's binding-hint inference only traces JSON types reachable from `@RequestMapping`/
+`@ResponseBody` signatures, so it never discovers these, and GraalVM's default reachability
+metadata doesn't cover record component accessors for arbitrary application records. The crash
+(`Record components not available ... must be included in the reflection configuration`) only
+happens the first time one of these records is actually serialized — a boot-only test never
+creates a note, so it never hits this path, which is exactly how the 2026-08-08 incident slipped
+past verification of the *previous* (Liquibase) fix.
+
+`NotesConfiguration.NoteEventRuntimeHints` uses `BindingReflectionHintsRegistrar` to cover
+`NoteCreated`, `NoteUpdated`, and `NoteDeleted`. A new `NoteEvent` subtype, or any other record
+serialized via a raw `ObjectMapper` call outside an MVC signature, needs the same treatment.
+Verify by booting the real native image and actually creating (or updating/deleting) a note
+through the REST API — not just checking that the app starts.
 
 ### CI/CD
 
