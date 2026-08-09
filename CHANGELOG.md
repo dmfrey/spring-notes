@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.2.2](https://github.com/dmfrey/spring-notes/compare/v3.2.1...v3.2.2) (2026-08-09)
+
+
+### Bug Fixes
+
+* register GraalVM reflection hints for NoteEvent records ([cd844e3](https://github.com/dmfrey/spring-notes/commit/cd844e3fc9b768de0bdeb4f902af5b9a067e1ff4))
+* register GraalVM reflection hints for NoteEvent records ([0757def](https://github.com/dmfrey/spring-notes/commit/0757def63bb202b28bb3de662e6fe3a8426dbd1b))
+
 ## [3.2.1](https://github.com/dmfrey/spring-notes/compare/v3.2.0...v3.2.1) (2026-08-07)
 
 
