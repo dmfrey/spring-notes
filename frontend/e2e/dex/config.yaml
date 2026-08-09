@@ -1,0 +1,35 @@
+issuer: http://localhost:5556/dex
+
+storage:
+  type: memory
+
+web:
+  http: 0.0.0.0:5556
+  # oidc-client-ts calls the token endpoint directly from the browser, cross-origin from the
+  # app's own localhost:4173 - Dex needs to send back CORS headers or that fetch is blocked
+  # before the exchange ever completes.
+  allowedOrigins: ['*']
+
+# In-memory static config only - this Dex instance exists solely to drive a real
+# authorization-code redirect round-trip in the E2E test, nothing is persisted.
+oauth2:
+  skipApprovalScreen: true
+
+staticClients:
+  # No secret: the frontend is a browser SPA (public client), same as production - it only
+  # ever sends client_id, never a client_secret, at the token endpoint.
+  - id: spring-notes-e2e
+    public: true
+    name: spring-notes (E2E)
+    redirectURIs:
+      - http://localhost:4173/
+
+enablePasswordDB: true
+
+staticPasswords:
+  - email: e2e@example.com
+    # bcrypt hash of "e2e-test-password", generated with bcryptjs (see frontend/e2e/fixtures/dex.js
+    # for the credentials this pairs with) - test-only, not a secret worth rotating.
+    hash: "$2b$10$jFC6v/VZjmC5JCzNBRnglOXJLimquIG4.fmsGysdZQ7CSV/LRPL3u"
+    username: e2e
+    userID: "08a8684b-db88-4b73-90a9-3cd1661f5466"
