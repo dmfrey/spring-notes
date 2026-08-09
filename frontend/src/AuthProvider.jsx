@@ -17,12 +17,18 @@ export function AuthProvider({ children }) {
       const config = await loadConfig()
       const mgr = createUserManager(config)
 
-      // Handle OIDC redirect callback — clean URL first so a failed
-      // exchange doesn't re-trigger this branch on the next render
+      // Handle OIDC redirect callback — capture the callback URL before
+      // clearing it from the address bar, so a failed exchange doesn't
+      // re-trigger this branch on the next render. signinRedirectCallback()
+      // reads the code/state from whatever URL it's given (defaulting to
+      // window.location.href), so clearing history first was wiping that
+      // data out from under it before the exchange ever ran, causing every
+      // callback to fail locally and restart the login flow in a loop.
       if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
+        const callbackUrl = window.location.href
         window.history.replaceState({}, '', '/')
         try {
-          const u = await mgr.signinRedirectCallback()
+          const u = await mgr.signinRedirectCallback(callbackUrl)
           if (!cancelled) setUser(u)
           return
         } catch (e) {
