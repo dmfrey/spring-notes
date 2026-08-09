@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.2.3](https://github.com/dmfrey/spring-notes/compare/v3.2.2...v3.2.3) (2026-08-09)
+
+
+### Bug Fixes
+
+* **frontend:** pass captured URL to signinRedirectCallback ([c848219](https://github.com/dmfrey/spring-notes/commit/c848219117fc2dd547c4c45f4ca2e4cd6829f92d))
+* **frontend:** pass captured URL to signinRedirectCallback ([0ea0725](https://github.com/dmfrey/spring-notes/commit/0ea07253b8328110dfba5ce6263c81c027201b7d))
+
 ## [3.2.2](https://github.com/dmfrey/spring-notes/compare/v3.2.1...v3.2.2) (2026-08-09)
 
 
