@@ -1,5 +1,24 @@
 # Changelog
 
+## [3.3.0](https://github.com/dmfrey/spring-notes/compare/v3.2.3...v3.3.0) (2026-08-10)
+
+
+### Features
+
+* **gradle:** update gradle ( 9.6.1 ➔ 9.7.0 ) ([6f9c7f7](https://github.com/dmfrey/spring-notes/commit/6f9c7f79154233c20bbc9348931bf3292785d27d))
+* **gradle:** update gradle ( 9.6.1 ➔ 9.7.0 ) ([7267012](https://github.com/dmfrey/spring-notes/commit/7267012b229af820d5c94f04cce55b8f1d70806d))
+* **gradle:** update plugin org.cyclonedx.bom ( 3.3.0 ➔ 3.4.0 ) ([64237d4](https://github.com/dmfrey/spring-notes/commit/64237d4dbac64a91927c1a32f59fa049ae831441))
+* **gradle:** update plugin org.cyclonedx.bom ( 3.3.0 ➔ 3.4.0 ) ([64f4073](https://github.com/dmfrey/spring-notes/commit/64f407385b681538e06ebab49abc4461548df3d2))
+
+
+### Bug Fixes
+
+* **frontend:** exclude e2e/ from vitest's own test discovery ([cf31443](https://github.com/dmfrey/spring-notes/commit/cf31443608ebbca99567bb69bb697c4d1795eb02))
+* **gradle:** update dependency org.openrewrite.recipe:rewrite-spring ( 6.36.0 ➔ 6.36.1 ) ([3feb708](https://github.com/dmfrey/spring-notes/commit/3feb7086db3805ae19dfb84a656e78ddb14fb5d8))
+* **gradle:** update plugin org.graalvm.buildtools.native ( 1.1.7 ➔ 1.1.8 ) ([0908ccd](https://github.com/dmfrey/spring-notes/commit/0908ccd784bbaaa2054c06283a2058ef490abe9f))
+* **npm:** update dependency jsdom ( 30.0.0 ➔ 30.0.1 ) ([f2f25cd](https://github.com/dmfrey/spring-notes/commit/f2f25cd579399e8362a3f81b8990261dba02a741))
+* **npm:** update dependency jsdom ( 30.0.0 ➔ 30.0.1 ) ([301c547](https://github.com/dmfrey/spring-notes/commit/301c547f723ad82cd6e7106c9643c9e0fca15e19))
+
 ## [3.2.3](https://github.com/dmfrey/spring-notes/compare/v3.2.2...v3.2.3) (2026-08-09)
 
 
