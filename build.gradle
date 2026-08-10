@@ -78,8 +78,11 @@ dependencies {
 }
 
 rewrite {
+	// SpringBoot33BestPractices dropped: it deterministically suggests adding
+	// javax.xml.bind:jaxb-api (a pre-Jakarta JDK-8-era JAXB shim) on every run, unrelated to
+	// this Java 25 / Jackson-only codebase - not a real recommendation, just a stale
+	// false-positive. See PRs #63 and #66.
 	activeRecipe(
-		'org.openrewrite.java.spring.boot3.SpringBoot33BestPractices',
 		'org.openrewrite.java.spring.NoAutowiredOnConstructor'
 	)
 }
