@@ -6,7 +6,9 @@ export default defineConfig({
   // two specs never try to start two Dex containers on the same port at once.
   workers: 1,
   fullyParallel: false,
-  reporter: process.env.CI ? [['html', { open: 'never' }], ['github']] : 'list',
+  reporter: process.env.CI
+    ? [['html', { open: 'never' }], ['github'], ['json', { outputFile: 'playwright-report/results.json' }]]
+    : 'list',
   webServer: {
     // Runs the actual production build artifact (matches what nginx serves), not the dev
     // server - the whole point of this tier is fidelity to what actually ships.

@@ -59,6 +59,9 @@ jobs:
 
   e2e:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
@@ -80,6 +83,13 @@ jobs:
       - name: Run E2E tests
         run: npm run test:e2e
         working-directory: frontend
+
+      - name: E2E test summary
+        uses: daun/playwright-report-summary@31ed947ec7a623d18a66cfd20ef546dc66ef8063 # v4.1.0
+        if: always()
+        with:
+          report-file: frontend/playwright-report/results.json
+          job-summary: true
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
