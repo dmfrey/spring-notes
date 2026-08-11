@@ -2,6 +2,8 @@ package com.broadcom.springconsulting.springnotes.chat.adapter.out.ai;
 
 import com.broadcom.springconsulting.springnotes.chat.application.domain.model.RetrievedNote;
 import com.broadcom.springconsulting.springnotes.chat.application.port.out.GenerateChatResponsePort;
+import io.micrometer.core.instrument.DistributionSummary;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
@@ -31,8 +33,12 @@ class OllamaChatAdapter implements GenerateChatResponsePort {
             """;
 
     private final ChatClient chatClient;
+    private final ChatMemory chatMemory;
+    private final DistributionSummary conversationLengthSummary;
 
-    OllamaChatAdapter( ChatClient.Builder chatClientBuilder, ChatMemory chatMemory ) {
+    OllamaChatAdapter( ChatClient.Builder chatClientBuilder, ChatMemory chatMemory, MeterRegistry meterRegistry ) {
+        this.chatMemory = chatMemory;
+
         // MessageChatMemoryAdvisor.Builder's default scheduler resolution doesn't survive
         // native-image AOT bean instantiation - it throws "scheduler cannot be null" at
         // startup (works fine on the JVM). Supplying one explicitly sidesteps that entirely.
@@ -43,11 +49,23 @@ class OllamaChatAdapter implements GenerateChatResponsePort {
         this.chatClient = chatClientBuilder
                 .defaultAdvisors( memoryAdvisor )
                 .build();
+
+        this.conversationLengthSummary = DistributionSummary.builder( "chat.conversation.length" )
+                .description( "Number of messages already in a conversation's memory when a chat request arrives" )
+                .baseUnit( "messages" )
+                // Without this, only count/sum/max get published - no buckets to run
+                // histogram_quantile() against for a p50/p95 panel.
+                .publishPercentileHistogram()
+                .register( meterRegistry );
     }
 
     @Override
     public Flux<String> generate( String owner, String message, List<RetrievedNote> context ) {
         log.debug( "Generating chat response for owner {}", owner );
+
+        // A small extra read purely for the metric - MessageChatMemoryAdvisor makes an
+        // equivalent read internally to build the prompt, but doesn't expose the count itself.
+        conversationLengthSummary.record( chatMemory.get( owner ).size() );
 
         var notesBlock = context.isEmpty()
                 ? "(none found)"
