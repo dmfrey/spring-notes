@@ -17,6 +17,10 @@ interface NotesRepository extends ListCrudRepository<NoteEntity, UUID> {
     @Query( "SELECT * FROM notes WHERE owner = :owner AND id > :cursor ORDER BY id LIMIT :limit" )
     List<NoteEntity> findAfterCursor( @Param( "owner" ) String owner, @Param( "cursor" ) UUID cursor, @Param( "limit" ) int limit );
 
+    @Modifying
+    @Query( "DELETE FROM notes WHERE id = :id AND owner = :owner" )
+    int deleteByIdAndOwner( @Param( "id" ) UUID id, @Param( "owner" ) String owner );
+
     // note_events.aggregate_id is the leading column of the unique constraint on
     // (aggregate_id, sequence_number), so this anti-join is index-backed.
     @Query( "SELECT n.* FROM notes n WHERE NOT EXISTS ( SELECT 1 FROM note_events e WHERE e.aggregate_id = n.id )" )

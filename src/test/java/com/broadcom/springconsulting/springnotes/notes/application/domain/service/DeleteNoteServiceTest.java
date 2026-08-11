@@ -1,5 +1,6 @@
 package com.broadcom.springconsulting.springnotes.notes.application.domain.service;
 
+import com.broadcom.springconsulting.springnotes.notes.application.domain.model.NoteNotFoundException;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteDeleted;
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.DeleteNoteUseCase.DeleteNoteCommand;
 import com.broadcom.springconsulting.springnotes.notes.application.port.out.AppendNoteEventPort;
@@ -15,8 +16,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith( MockitoExtension.class )
 class DeleteNoteServiceTest {
@@ -43,10 +48,11 @@ class DeleteNoteServiceTest {
     void execute_delegatesToPort() {
 
         var id = UuidCreator.getTimeOrderedEpoch();
+        when( deleteNotePort.deleteNote( id, TEST_OWNER ) ).thenReturn( true );
 
         service.execute( new DeleteNoteCommand( id, TEST_OWNER ) );
 
-        verify( deleteNotePort ).deleteNote( id );
+        verify( deleteNotePort ).deleteNote( id, TEST_OWNER );
 
     }
 
@@ -54,11 +60,25 @@ class DeleteNoteServiceTest {
     void execute_appendsNoteDeletedEvent() {
 
         var id = UuidCreator.getTimeOrderedEpoch();
+        when( deleteNotePort.deleteNote( id, TEST_OWNER ) ).thenReturn( true );
 
         service.execute( new DeleteNoteCommand( id, TEST_OWNER ) );
 
         verify( appendNoteEventPort ).append( eventCaptor.capture(), eq( TEST_OWNER ) );
         assertThat( eventCaptor.getValue().noteId() ).isEqualTo( id );
+
+    }
+
+    @Test
+    void execute_whenNoteNotOwnedOrMissing_throwsNoteNotFoundExceptionAndDoesNotAppendEvent() {
+
+        var id = UuidCreator.getTimeOrderedEpoch();
+        when( deleteNotePort.deleteNote( id, TEST_OWNER ) ).thenReturn( false );
+
+        assertThatThrownBy( () -> service.execute( new DeleteNoteCommand( id, TEST_OWNER ) ) )
+                .isInstanceOf( NoteNotFoundException.class );
+
+        verify( appendNoteEventPort, never() ).append( any(), eq( TEST_OWNER ) );
 
     }
 

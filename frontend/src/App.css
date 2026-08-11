@@ -1,0 +1,88 @@
+/* First real stylesheet in this app - added specifically for the chat panel, which needs
+   fixed positioning and a slide-in transition that inline styles don't handle cleanly. */
+
+.chat-toggle {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10;
+}
+
+.chat-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 360px;
+  max-width: 90vw;
+  background: #fff;
+  border-left: 1px solid #ccc;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.2s ease-in-out;
+  z-index: 20;
+}
+
+.chat-panel--open {
+  transform: translateX(0);
+}
+
+.chat-panel__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid #ccc;
+}
+
+.chat-panel__header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.chat-panel__messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.chat-panel__empty {
+  color: #666;
+}
+
+.chat-message {
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  max-width: 85%;
+  white-space: pre-wrap;
+}
+
+.chat-message--user {
+  align-self: flex-end;
+  background: #d6e9ff;
+}
+
+.chat-message--assistant {
+  align-self: flex-start;
+  background: #f0f0f0;
+}
+
+.chat-panel__error {
+  padding: 0 1rem;
+  color: #c00;
+}
+
+.chat-panel__form {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-top: 1px solid #ccc;
+}
+
+.chat-panel__form input {
+  flex: 1;
+}

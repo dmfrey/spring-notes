@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - changeSet:
+      id: chat-001-create-vector-extension
+      author: dmfrey
+      changes:
+        - sql:
+            sql: CREATE EXTENSION IF NOT EXISTS vector

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useAuth } from './AuthProvider.jsx'
+import ChatPanel from './ChatPanel.jsx'
 
 async function fetchNotes(cursor, limit = 25, headers) {
   const params = new URLSearchParams({ limit })
@@ -140,6 +141,7 @@ export default function App() {
   }
 
   return (
+    <>
     <main>
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
         <h1>Notes</h1>
@@ -222,5 +224,7 @@ export default function App() {
         </form>
       </dialog>
     </main>
+    <ChatPanel />
+    </>
   )
 }

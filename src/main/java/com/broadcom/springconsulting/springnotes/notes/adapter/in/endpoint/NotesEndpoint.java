@@ -1,6 +1,7 @@
 package com.broadcom.springconsulting.springnotes.notes.adapter.in.endpoint;
 
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.Note;
+import com.broadcom.springconsulting.springnotes.notes.application.domain.model.NoteNotFoundException;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.NoteSlice;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteEvent;
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.CreateNoteUseCase;
@@ -117,6 +118,11 @@ class NotesEndpoint {
     @ExceptionHandler( IllegalArgumentException.class )
     ResponseEntity<Void> handleValidation() {
         return ResponseEntity.badRequest().build();
+    }
+
+    @ExceptionHandler( NoteNotFoundException.class )
+    ResponseEntity<Void> handleNotFound() {
+        return ResponseEntity.notFound().build();
     }
 
     record CreateNoteRequest( String title, String content ) {}

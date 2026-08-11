@@ -167,8 +167,9 @@ class NotesPersistenceAdapterTest {
         UUID id = UuidCreator.getTimeOrderedEpoch();
         notesRepository.save( new NoteEntity( id, "To Delete", "Content", OWNER, null, null, null, null ) );
 
-        adapter.deleteNote( id );
+        boolean deleted = adapter.deleteNote( id, OWNER );
 
+        assertThat( deleted ).isTrue();
         assertThat( notesRepository.findById( id ) ).isEmpty();
 
     }
@@ -181,10 +182,23 @@ class NotesPersistenceAdapterTest {
         notesRepository.save( new NoteEntity( id1, "Note 1", "Content 1", OWNER, null, null, null, null ) );
         notesRepository.save( new NoteEntity( id2, "Note 2", "Content 2", OWNER, null, null, null, null ) );
 
-        adapter.deleteNote( id1 );
+        adapter.deleteNote( id1, OWNER );
 
         assertThat( notesRepository.findById( id1 ) ).isEmpty();
         assertThat( notesRepository.findById( id2 ) ).isPresent();
+
+    }
+
+    @Test
+    void deleteNote_whenOwnerDoesNotMatch_doesNotDeleteAndReturnsFalse() {
+
+        UUID id = UuidCreator.getTimeOrderedEpoch();
+        notesRepository.save( new NoteEntity( id, "Not Yours", "Content", OWNER, null, null, null, null ) );
+
+        boolean deleted = adapter.deleteNote( id, "someone-else" );
+
+        assertThat( deleted ).isFalse();
+        assertThat( notesRepository.findById( id ) ).isPresent();
 
     }
 

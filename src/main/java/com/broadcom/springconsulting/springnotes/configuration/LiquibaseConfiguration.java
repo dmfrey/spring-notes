@@ -28,6 +28,7 @@ public class LiquibaseConfiguration {
                 "liquibase.change.core.AddColumnChange",
                 "liquibase.change.core.AddUniqueConstraintChange",
                 "liquibase.change.core.CreateIndexChange",
+                "liquibase.change.core.RawSQLChange",
                 "liquibase.change.ColumnConfig",
                 "liquibase.change.AddColumnConfig",
                 "liquibase.change.ConstraintsConfig"

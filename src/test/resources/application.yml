@@ -1,0 +1,24 @@
+# Spring Boot resolves classpath:application.yml to the FIRST match on the classpath - test
+# resources come before main resources, so this file completely REPLACES
+# src/main/resources/application.yml for test runs rather than layering on top of it. Every
+# property from there that tests still need has to be repeated here explicitly, or it silently
+# reverts to framework defaults (this is exactly how CI caught a real bug: omitting the
+# embedding model here left Spring AI's Ollama autoconfiguration falling back to its own
+# default, "mxbai-embed-large" - a model TestcontainersConfiguration's OllamaContainer never
+# pulls - instead of failing fast, every vector store call 404'd against Ollama).
+spring:
+  ai:
+    ollama:
+      # llama3.2:1b is what TestcontainersConfiguration's OllamaContainer actually pulls -
+      # the production default (application.yml) is a much larger real chat model that won't
+      # exist in the test container.
+      chat:
+        model: llama3.2:1b
+      # Must match production's model (nomic-embed-text, 768-dim) exactly, not just be "small" -
+      # the dimension is baked into vector_store's embedding vector(768) column, so a different
+      # embedding model here would fail on every insert with a dimension mismatch.
+      embedding:
+        model: nomic-embed-text
+    vectorstore:
+      pgvector:
+        initialize-schema: false
