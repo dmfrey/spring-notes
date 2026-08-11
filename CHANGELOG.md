@@ -1,5 +1,22 @@
 # Changelog
 
+## [3.4.0](https://github.com/dmfrey/spring-notes/compare/v3.3.0...v3.4.0) (2026-08-11)
+
+
+### Features
+
+* **ci:** add backend coverage and E2E result summaries ([e482902](https://github.com/dmfrey/spring-notes/commit/e482902d1fd4660a53a66a16b7c20abd049ec4d2))
+* **ci:** add backend coverage and E2E result summaries ([4d84690](https://github.com/dmfrey/spring-notes/commit/4d846902f6c1d1623d34189a3b1a7e7ed86c4050))
+* **ci:** submit SBOM to Dependency-Track on push to main/tags ([bffe43f](https://github.com/dmfrey/spring-notes/commit/bffe43fc5e8b756abb0ebf0d7be1f164c2d0be8b))
+* **ci:** submit SBOM to Dependency-Track on push to main/tags ([8214adc](https://github.com/dmfrey/spring-notes/commit/8214adc9ce9bd97da7873d053a79174e8ab6fe70))
+* **ci:** wait for Dependency-Track processing, gate on Critical findings ([600db1a](https://github.com/dmfrey/spring-notes/commit/600db1ad4331fb5aa13274c5118051f3d3f6a05b))
+* **ci:** wait for Dependency-Track processing, gate on Critical findings ([bdaff8f](https://github.com/dmfrey/spring-notes/commit/bdaff8fb64f11b0f3cba1b72a097c1439335f8e8))
+
+
+### Bug Fixes
+
+* **deps:** bump logback, netty, and postgresql past 3 High CVEs ([15995fa](https://github.com/dmfrey/spring-notes/commit/15995fad9e515aedc6159a7ac536c01b512b5164))
+
 ## [3.3.0](https://github.com/dmfrey/spring-notes/compare/v3.2.3...v3.3.0) (2026-08-10)
 
 
