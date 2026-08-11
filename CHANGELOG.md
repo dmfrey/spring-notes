@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.5.0](https://github.com/dmfrey/spring-notes/compare/v3.4.0...v3.5.0) (2026-08-11)
+
+
+### Features
+
+* add Spring AI chat over notes (RAG, streaming, owner-scoped) ([1370144](https://github.com/dmfrey/spring-notes/commit/1370144e9b5339155a57890d48ab2902a06d80a9))
+* add Spring AI chat over notes (RAG, streaming, owner-scoped) ([3ccc34a](https://github.com/dmfrey/spring-notes/commit/3ccc34a9a35d38f9d85d966b5f89dcc5f568f9fa))
+
+
+### Bug Fixes
+
+* restore embedding model + pgvector schema config in test application.yml ([c523949](https://github.com/dmfrey/spring-notes/commit/c5239494774a9e27d714fdd8b23a77d54ac944d3))
+
 ## [3.4.0](https://github.com/dmfrey/spring-notes/compare/v3.3.0...v3.4.0) (2026-08-11)
 
 
