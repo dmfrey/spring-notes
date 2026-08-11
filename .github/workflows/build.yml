@@ -168,11 +168,66 @@ jobs:
         run: ./gradlew cyclonedxBom
 
       - name: Upload SBOM to Dependency-Track
+        id: upload
         env:
           DEPENDENCY_TRACK_API_KEY: ${{ secrets.DEPENDENCY_TRACK_API_KEY }}
         run: |
-          curl -sSf -X POST \
+          set -euo pipefail
+          TOKEN=$(curl -sSf -X POST \
             http://dependency-track-api.security.svc.cluster.local:8080/api/v1/bom \
             -H "X-API-Key: ${DEPENDENCY_TRACK_API_KEY}" \
             -F "project=66ca30fd-78af-4ffd-8a55-5cc5109d2d26" \
-            -F "bom=@build/reports/cyclonedx/application.cdx.json"
+            -F "bom=@build/reports/cyclonedx/application.cdx.json" | jq -r '.token')
+          echo "token=${TOKEN}" >> "$GITHUB_OUTPUT"
+
+      - name: Wait for Dependency-Track to finish processing
+        env:
+          DEPENDENCY_TRACK_API_KEY: ${{ secrets.DEPENDENCY_TRACK_API_KEY }}
+          TOKEN: ${{ steps.upload.outputs.token }}
+        run: |
+          set -euo pipefail
+          if [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ]; then
+            echo "::error::Dependency-Track didn't return an upload token - the upload likely failed silently."
+            exit 1
+          fi
+          for i in $(seq 1 30); do
+            PROCESSING=$(curl -sSf \
+              -H "X-API-Key: ${DEPENDENCY_TRACK_API_KEY}" \
+              "http://dependency-track-api.security.svc.cluster.local:8080/api/v1/bom/token/${TOKEN}" \
+              | jq -r '.processing')
+            if [ "$PROCESSING" = "false" ]; then
+              echo "Processing complete."
+              exit 0
+            fi
+            echo "Still processing (attempt $i/30)..."
+            sleep 5
+          done
+          echo "::warning::Dependency-Track did not finish processing within 150s; findings below may be stale."
+
+      - name: Fetch findings and gate on severity
+        env:
+          DEPENDENCY_TRACK_API_KEY: ${{ secrets.DEPENDENCY_TRACK_API_KEY }}
+        run: |
+          set -euo pipefail
+          curl -sSf \
+            -H "X-API-Key: ${DEPENDENCY_TRACK_API_KEY}" \
+            "http://dependency-track-api.security.svc.cluster.local:8080/api/v1/finding/project/66ca30fd-78af-4ffd-8a55-5cc5109d2d26" \
+            -o findings.json
+
+          {
+            echo "## Dependency-Track findings"
+            echo
+            echo "| Severity | Vulnerability | Component |"
+            echo "|---|---|---|"
+            jq -r '.[] | [.vulnerability.severity, .vulnerability.vulnId, (.components[0].name + "@" + (.components[0].version // "?"))] | "| \(.[0]) | \(.[1]) | \(.[2]) |"' findings.json | sort
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          CRITICAL=$(jq '[.[] | select(.vulnerability.severity == "CRITICAL")] | length' findings.json)
+          HIGH=$(jq '[.[] | select(.vulnerability.severity == "HIGH")] | length' findings.json)
+
+          echo "Critical: $CRITICAL, High: $HIGH"
+
+          if [ "$CRITICAL" -gt 0 ]; then
+            echo "::error::$CRITICAL CRITICAL finding(s) - failing the build."
+            exit 1
+          fi
