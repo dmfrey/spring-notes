@@ -1,0 +1,8 @@
+spring:
+  ai:
+    ollama:
+      # llama3.2:1b is what TestcontainersConfiguration's OllamaContainer actually pulls -
+      # the production default (application.yml) is a much larger real chat model that won't
+      # exist in the test container.
+      chat:
+        model: llama3.2:1b

@@ -1,5 +1,6 @@
 package com.broadcom.springconsulting.springnotes.notes.application.domain.service;
 
+import com.broadcom.springconsulting.springnotes.notes.application.domain.model.NoteNotFoundException;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteDeleted;
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.DeleteNoteUseCase;
 import com.broadcom.springconsulting.springnotes.notes.application.port.out.AppendNoteEventPort;
@@ -35,7 +36,10 @@ class DeleteNoteService implements DeleteNoteUseCase {
 
         Observation.createNotStarted( "notes.delete", observationRegistry )
                 .observe( () -> {
-                    deleteNotePort.deleteNote( command.id() );
+                    if ( !deleteNotePort.deleteNote( command.id(), command.owner() ) ) {
+                        throw new NoteNotFoundException( command.id() );
+                    }
+
                     appendNoteEventPort.append( new NoteDeleted( command.id(), Instant.now() ), command.owner() );
                 } );
     }

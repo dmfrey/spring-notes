@@ -9,3 +9,9 @@ databaseChangeLog:
       file: db/changelog/notes/db.changelog-notes-004.yaml
   - include:
       file: db/changelog/notes/db.changelog-notes-005.yaml
+  - include:
+      file: db/changelog/chat/db.changelog-chat-001.yaml
+  - include:
+      file: db/changelog/chat/db.changelog-chat-002.yaml
+  - include:
+      file: db/changelog/chat/db.changelog-chat-003.yaml

@@ -25,6 +25,7 @@ repositories {
 
 ext {
 	set('datasourceMicrometerVersion', "2.2.1")
+	set('springAiVersion', "2.0.0")
 
 	// Security overrides for High findings from Dependency-Track's v3.3.0 SBOM scan - bump past
 	// Spring Boot 4.1.0's managed versions ahead of its next patch release. Remove once
@@ -56,6 +57,11 @@ dependencies {
 	// Database dependencies
 	implementation 'org.postgresql:postgresql'
 
+	// AI dependencies - chat feature (see plan at /home/dmfrey/.claude/plans/nested-discovering-nova.md)
+	implementation 'org.springframework.ai:spring-ai-starter-model-ollama'
+	implementation 'org.springframework.ai:spring-ai-starter-vector-store-pgvector'
+	implementation 'org.springframework.ai:spring-ai-starter-model-chat-memory-repository-jdbc'
+
 	// Developer Tools
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
@@ -77,6 +83,9 @@ dependencies {
 	testImplementation 'org.testcontainers:testcontainers-junit-jupiter'
 	testImplementation 'org.testcontainers:testcontainers-postgresql'
 	testImplementation 'org.testcontainers:testcontainers-rabbitmq'
+	testImplementation 'org.testcontainers:ollama:1.21.4'
+	testImplementation 'org.springframework.ai:spring-ai-spring-boot-testcontainers'
+	testImplementation 'io.projectreactor:reactor-test'
 
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
@@ -97,6 +106,7 @@ rewrite {
 dependencyManagement {
 	imports {
 		mavenBom "net.ttddyy.observation:datasource-micrometer-bom:${datasourceMicrometerVersion}"
+		mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
 	}
 }
 

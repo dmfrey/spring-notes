@@ -1,4 +1,5 @@
 import './otel.js'
+import './App.css'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { AuthProvider } from './AuthProvider.jsx'

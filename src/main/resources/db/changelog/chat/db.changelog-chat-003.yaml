@@ -1,0 +1,28 @@
+databaseChangeLog:
+  - changeSet:
+      id: chat-003-create-chat-memory-table
+      author: dmfrey
+      comment: >-
+        Mirrors the schema-postgresql.sql bundled with
+        org.springframework.ai:spring-ai-model-chat-memory-repository-jdbc:2.0.0, except
+        conversation_id is widened from VARCHAR(36) to VARCHAR(255) to match this app's own
+        `owner VARCHAR(255)` convention. conversation_id is always jwt.getSubject() (the owner),
+        which isn't guaranteed to be a 36-char UUID for every IdP's sub claim.
+      changes:
+        - sql:
+            sql: |-
+              CREATE TABLE IF NOT EXISTS SPRING_AI_CHAT_MEMORY (
+                  conversation_id VARCHAR(255) NOT NULL,
+                  content TEXT NOT NULL,
+                  type VARCHAR(10) NOT NULL CHECK (type IN ('USER', 'ASSISTANT', 'SYSTEM', 'TOOL')),
+                  "timestamp" TIMESTAMP NOT NULL,
+                  sequence_id BIGINT NOT NULL
+              )
+        - sql:
+            sql: |-
+              CREATE INDEX IF NOT EXISTS SPRING_AI_CHAT_MEMORY_CONVERSATION_ID_TIMESTAMP_IDX
+              ON SPRING_AI_CHAT_MEMORY(conversation_id, "timestamp")
+        - sql:
+            sql: |-
+              CREATE INDEX IF NOT EXISTS SPRING_AI_CHAT_MEMORY_CONVERSATION_ID_SEQUENCE_ID_IDX
+              ON SPRING_AI_CHAT_MEMORY(conversation_id, sequence_id)

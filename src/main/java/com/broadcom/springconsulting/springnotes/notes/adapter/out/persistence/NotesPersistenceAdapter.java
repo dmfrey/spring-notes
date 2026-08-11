@@ -55,10 +55,10 @@ class NotesPersistenceAdapter implements LoadNotesPort, SaveNotePort, DeleteNote
     }
 
     @Override
-    public void deleteNote( UUID id ) {
-        log.debug( "Deleting note {}", id );
+    public boolean deleteNote( UUID id, String owner ) {
+        log.debug( "Deleting note {} for owner {}", id, owner );
 
-        notesRepository.deleteById( id );
+        return notesRepository.deleteByIdAndOwner( id, owner ) > 0;
     }
 
     @Override

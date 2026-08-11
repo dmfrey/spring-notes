@@ -91,7 +91,7 @@ jobs:
     # auto-configuration is included in the AOT-compiled native image.
     services:
       postgres:
-        image: postgres:latest
+        image: pgvector/pgvector:pg18
         env:
           POSTGRES_DB: spring_notes
           POSTGRES_USER: postgres

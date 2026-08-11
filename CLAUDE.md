@@ -167,6 +167,26 @@ A missing reflection hint can therefore pass a first deploy cleanly (fresh migra
 different code path) and then crash-loop on every restart afterward. This is exactly how the
 2026-08-06 incident slipped past both CI and the first production deploy.
 
+**Related but distinct failure mode: AOT bean-instantiation defaults, not reflection.** Adding
+Spring AI's `MessageChatMemoryAdvisor` (chat feature, 2026-08-11) hit a variant of the same
+"works on the JVM, breaks under native image" pattern that isn't a missing reflection hint:
+`MessageChatMemoryAdvisor.Builder.build()` throws `IllegalArgumentException: scheduler cannot be
+null` when built during AOT-generated bean instantiation in a native image — its default
+scheduler resolution (normally falling back to `Schedulers.boundedElastic()`) simply doesn't
+survive the native-image build, even though it works every time on the JVM. Worse than a clean
+crash: the resulting `BeanCreationException` during context refresh sent this app's shutdown
+path into a permanent deadlock instead of exiting, so the native image just hung forever on
+every boot with no log output and no crash — `podman ps` showed it as perpetually "Up" while
+health checks never responded. It was misdiagnosed as environment/resource-pressure flakiness for
+some time before extracting the compiled binary and running it directly under `strace` outside
+any container revealed the real (fast, deterministic) stack trace. Fixed in
+`chat/adapter/out/ai/OllamaChatAdapter` by passing `.scheduler(Schedulers.boundedElastic())`
+explicitly rather than relying on the builder's default. **Lesson: when a native image boots but
+never becomes healthy and produces no log output, don't assume it's slow — extract the binary
+(`podman cp <container>:/workspace/<AppClassName> ./app`) and run it directly under `strace -f`
+to get a real stack trace**, since GraalVM's own SIGQUIT-triggered thread dump support did not
+produce visible output in this environment.
+
 **When testing a Liquibase reflection fix, you must restart the app at least twice against the
 same already-migrated database** — testing only a fresh/first boot will not catch this class of
 bug:

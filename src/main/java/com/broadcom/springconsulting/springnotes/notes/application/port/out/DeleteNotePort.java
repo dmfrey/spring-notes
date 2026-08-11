@@ -4,6 +4,6 @@ import java.util.UUID;
 
 public interface DeleteNotePort {
 
-    void deleteNote( UUID id );
+    boolean deleteNote( UUID id, String owner );
 
 }

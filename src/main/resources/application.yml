@@ -10,6 +10,30 @@ spring:
   threads:
     virtual:
       enabled: true
+  mvc:
+    async:
+      # Only /chat is async today. The Spring default (~30s) can be shorter than a real
+      # generation; 60s is a local/default ceiling, not a production guarantee - see the
+      # gitops write-up for the matching Envoy timeout action item.
+      request-timeout: 60000
+  ai:
+    ollama:
+      chat:
+        # Deploy-time default - override via SPRING_AI_OLLAMA_CHAT_MODEL for the real Ollama
+        # instance. Not model-quality-critical: read-only Q&A grounded in retrieved note
+        # content favors faithfulness over raw capability.
+        model: qwen2.5:7b-instruct
+      embedding:
+        # Overridable via SPRING_AI_OLLAMA_EMBEDDING_MODEL, but unlike the chat model this one
+        # is NOT freely swappable later - its output dimension is baked into vector_store's
+        # embedding vector(768) column at migration time (db/changelog/chat/db.changelog-chat-002.yaml).
+        # Changing it means a schema migration plus a full reindex of every note.
+        model: nomic-embed-text
+    vectorstore:
+      pgvector:
+        # Liquibase owns the vector_store schema (db/changelog/chat/) - don't let
+        # PgVectorStore create/alter it itself.
+        initialize-schema: false
 
 management:
   endpoints:

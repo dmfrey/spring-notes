@@ -6,7 +6,7 @@ services:
 #      - '4317'
 #      - '4318'
   postgres:
-    image: 'postgres:latest'
+    image: 'pgvector/pgvector:pg18'
     environment:
       - 'POSTGRES_DB=spring_notes'
       - 'POSTGRES_PASSWORD=postgres'

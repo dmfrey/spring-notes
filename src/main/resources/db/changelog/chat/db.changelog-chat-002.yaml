@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - changeSet:
+      id: chat-002-create-vector-store-table
+      author: dmfrey
+      comment: >-
+        Matches org.springframework.ai:spring-ai-pgvector-store:2.0.0's own DDL (PgVectorStore)
+        exactly, so spring.ai.vectorstore.pgvector.schema-validation could be turned on later
+        without a mismatch - Liquibase owns schema here, initialize-schema is false. Embedding
+        dimension 768 is sized for the nomic-embed-text model (see ChatConfiguration). Unlike
+        the chat model, the embedding model/dimension is hard to change later - it's baked into
+        this vector(N) column, so swapping it means a new migration plus a full reindex of every
+        note.
+      changes:
+        - sql:
+            sql: CREATE EXTENSION IF NOT EXISTS "uuid-ossp"
+        - sql:
+            sql: |-
+              CREATE TABLE IF NOT EXISTS vector_store (
+                  id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+                  content text,
+                  metadata json,
+                  embedding vector(768)
+              )
+        - sql:
+            sql: CREATE INDEX IF NOT EXISTS spring_ai_vector_index ON vector_store USING hnsw (embedding vector_cosine_ops)
