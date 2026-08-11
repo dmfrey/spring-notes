@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.6.0](https://github.com/dmfrey/spring-notes/compare/v3.5.0...v3.6.0) (2026-08-11)
+
+
+### Features
+
+* add chat retrieval-empty and conversation-length metrics ([ddeb876](https://github.com/dmfrey/spring-notes/commit/ddeb8760d2de5fccf665f9feb907a76da629975f))
+* add chat retrieval-empty and conversation-length metrics ([2e40fd5](https://github.com/dmfrey/spring-notes/commit/2e40fd50df377e4c896c736b468559dd6b74e190))
+
 ## [3.5.0](https://github.com/dmfrey/spring-notes/compare/v3.4.0...v3.5.0) (2026-08-11)
 
 
