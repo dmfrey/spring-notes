@@ -25,6 +25,13 @@ repositories {
 
 ext {
 	set('datasourceMicrometerVersion', "2.2.1")
+
+	// Security overrides for High findings from Dependency-Track's v3.3.0 SBOM scan - bump past
+	// Spring Boot 4.1.0's managed versions ahead of its next patch release. Remove once
+	// spring-boot-dependencies picks up fixed versions on its own.
+	set('logback.version', '1.5.37')     // CVE-2026-13006: conditional-processing config ACE
+	set('netty.version', '4.2.16.Final') // CVE-2026-59901 (netty-codec-compression): bzip2 decoder infinite loop DoS
+	set('postgresql.version', '42.7.12') // CVE-2026-54291: channelBinding=require silent downgrade to non-MITM-resistant SCRAM
 }
 
 dependencies {
