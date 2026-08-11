@@ -4,6 +4,7 @@ import com.broadcom.springconsulting.springnotes.chat.application.domain.model.R
 import com.broadcom.springconsulting.springnotes.chat.application.port.in.ChatUseCase.ChatCommand;
 import com.broadcom.springconsulting.springnotes.chat.application.port.out.GenerateChatResponsePort;
 import com.broadcom.springconsulting.springnotes.chat.application.port.out.RetrieveRelevantNotesPort;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,11 +38,14 @@ class ChatServiceTest {
     @Captor
     ArgumentCaptor<List<RetrievedNote>> contextCaptor;
 
+    SimpleMeterRegistry meterRegistry;
+
     ChatService service;
 
     @BeforeEach
     void setUp() {
-        service = new ChatService( retrieveRelevantNotesPort, generateChatResponsePort );
+        meterRegistry = new SimpleMeterRegistry();
+        service = new ChatService( retrieveRelevantNotesPort, generateChatResponsePort, meterRegistry );
     }
 
     @Test
@@ -69,6 +73,37 @@ class ChatServiceTest {
         assertThatThrownBy( () -> new ChatCommand( TEST_OWNER, "  " ) )
                 .isInstanceOf( IllegalArgumentException.class )
                 .hasMessageContaining( "message" );
+
+    }
+
+    @Test
+    void execute_whenRetrievalIsEmpty_incrementsEmptyRetrievalCounter() {
+
+        when( retrieveRelevantNotesPort.retrieve( eq( TEST_OWNER ), eq( "Anything?" ), anyInt() ) ).thenReturn( List.of() );
+        when( generateChatResponsePort.generate( eq( TEST_OWNER ), eq( "Anything?" ), eq( List.of() ) ) )
+                .thenReturn( Flux.just( "I don't know." ) );
+
+        StepVerifier.create( service.execute( new ChatCommand( TEST_OWNER, "Anything?" ) ) )
+                .expectNextCount( 1 )
+                .verifyComplete();
+
+        assertThat( meterRegistry.get( "chat.retrieval.empty" ).counter().count() ).isEqualTo( 1.0 );
+
+    }
+
+    @Test
+    void execute_whenRetrievalFindsNotes_doesNotIncrementEmptyRetrievalCounter() {
+
+        var context = List.of( new RetrievedNote( "Title", "Content" ) );
+        when( retrieveRelevantNotesPort.retrieve( eq( TEST_OWNER ), eq( "What did I write?" ), anyInt() ) ).thenReturn( context );
+        when( generateChatResponsePort.generate( eq( TEST_OWNER ), eq( "What did I write?" ), eq( context ) ) )
+                .thenReturn( Flux.just( "Here you go." ) );
+
+        StepVerifier.create( service.execute( new ChatCommand( TEST_OWNER, "What did I write?" ) ) )
+                .expectNextCount( 1 )
+                .verifyComplete();
+
+        assertThat( meterRegistry.get( "chat.retrieval.empty" ).counter().count() ).isZero();
 
     }
 
