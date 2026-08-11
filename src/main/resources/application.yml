@@ -23,27 +23,23 @@ spring:
         # instance. Not model-quality-critical: read-only Q&A grounded in retrieved note
         # content favors faithfulness over raw capability.
         model: qwen2.5:7b-instruct
-        options:
-          # Ollama's own default is 5m, which for a low-traffic app means the model is likely
-          # evicted between chat sessions - 30m trades some idle host memory for avoiding a
-          # cold-reload delay on the next request.
-          keep-alive: 30m
+        # Deliberately no options.keep-alive here. The embedding model can't have one set at
+        # all - confirmed via Spring AI 2.0.0 bytecode that OllamaEmbeddingModel.mergeOptions()
+        # only copies fields declared on the generic EmbeddingOptions interface when building
+        # per-call options, and PgVectorStore always calls embed() with a non-null
+        # EmbeddingOptions, so an Ollama-specific field like keep-alive never survives that
+        # merge - it would be silently ineffective no matter what it's set to. Setting one only
+        # for chat would then make chat evict on its own schedule while embedding follows
+        # whatever Ollama's server-side default is, which is worse than picking one authority.
+        # The actual deployment sets OLLAMA_KEEP_ALIVE=-1 server-side (never unload) on the
+        # Ollama instance itself, which already governs both models consistently without any
+        # app-level involvement - leave it there rather than fight it from here.
       embedding:
         # Overridable via SPRING_AI_OLLAMA_EMBEDDING_MODEL, but unlike the chat model this one
         # is NOT freely swappable later - its output dimension is baked into vector_store's
         # embedding vector(768) column at migration time (db/changelog/chat/db.changelog-chat-002.yaml).
         # Changing it means a schema migration plus a full reindex of every note.
         model: nomic-embed-text
-        # No embedding.options.keep-alive here on purpose - it would be silently ineffective.
-        # OllamaEmbeddingModel.mergeOptions() only copies fields declared on the generic
-        # EmbeddingOptions interface (model, dimensions, ...) when building per-call options,
-        # and PgVectorStore always calls embed() with a non-null (if empty) EmbeddingOptions -
-        # so keep-alive, being Ollama-specific and not on that interface, never survives the
-        # merge (confirmed against Spring AI 2.0.0 bytecode; every embed call ends up on
-        # Ollama's own 5m server default regardless of this property). If the embedding model
-        # also needs to stay warm, set OLLAMA_KEEP_ALIVE as a server-side env var on the Ollama
-        # deployment itself instead - that changes Ollama's own default for any request that
-        # doesn't explicitly override it, which includes ours.
     vectorstore:
       pgvector:
         # Liquibase owns the vector_store schema (db/changelog/chat/) - don't let
