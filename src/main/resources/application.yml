@@ -23,6 +23,17 @@ spring:
         # instance. Not model-quality-critical: read-only Q&A grounded in retrieved note
         # content favors faithfulness over raw capability.
         model: qwen2.5:7b-instruct
+        # Deliberately no options.keep-alive here. The embedding model can't have one set at
+        # all - confirmed via Spring AI 2.0.0 bytecode that OllamaEmbeddingModel.mergeOptions()
+        # only copies fields declared on the generic EmbeddingOptions interface when building
+        # per-call options, and PgVectorStore always calls embed() with a non-null
+        # EmbeddingOptions, so an Ollama-specific field like keep-alive never survives that
+        # merge - it would be silently ineffective no matter what it's set to. Setting one only
+        # for chat would then make chat evict on its own schedule while embedding follows
+        # whatever Ollama's server-side default is, which is worse than picking one authority.
+        # The actual deployment sets OLLAMA_KEEP_ALIVE=-1 server-side (never unload) on the
+        # Ollama instance itself, which already governs both models consistently without any
+        # app-level involvement - leave it there rather than fight it from here.
       embedding:
         # Overridable via SPRING_AI_OLLAMA_EMBEDDING_MODEL, but unlike the chat model this one
         # is NOT freely swappable later - its output dimension is baked into vector_store's
