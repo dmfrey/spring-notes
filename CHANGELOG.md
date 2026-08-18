@@ -1,5 +1,28 @@
 # Changelog
 
+## [3.7.0](https://github.com/dmfrey/spring-notes/compare/v3.6.0...v3.7.0) (2026-08-18)
+
+
+### Features
+
+* **gradle:** update dependency org.openrewrite.recipe:rewrite-spring ( 6.36.1 ➔ 6.37.0 ) ([cc2097b](https://github.com/dmfrey/spring-notes/commit/cc2097b660ceb248665573ce4f56f82878d0dbb5))
+* **gradle:** update dependency org.openrewrite.recipe:rewrite-spring ( 6.36.1 ➔ 6.37.0 ) ([9c56800](https://github.com/dmfrey/spring-notes/commit/9c568002a1cfbb2646af84083be337190c145d79))
+* **gradle:** update plugin org.openrewrite.rewrite ( 7.38.0 ➔ 7.39.0 ) ([09a8546](https://github.com/dmfrey/spring-notes/commit/09a8546b67cb26be17bc345340725efc8d1f6091))
+* **gradle:** update plugin org.openrewrite.rewrite ( 7.38.0 ➔ 7.39.0 ) ([1b01656](https://github.com/dmfrey/spring-notes/commit/1b01656d722c82f403e33ac4522a1d03f35a4a15))
+* set 30m keep-alive for the Ollama chat model ([16c8bb8](https://github.com/dmfrey/spring-notes/commit/16c8bb8c0d09e79cbe595e3eea520e5b064fd78c))
+
+
+### Bug Fixes
+
+* **github-action:** update action renovatebot/github-action ( v46.2.1 ➔ v46.2.2 ) ([b4b1c6c](https://github.com/dmfrey/spring-notes/commit/b4b1c6cba9f4d9ab7bc6700d94277cd765551451))
+* **gradle:** update dependency org.openrewrite.recipe:rewrite-java-dependencies ( 1.60.1 ➔ 1.60.2 ) ([dba9b5e](https://github.com/dmfrey/spring-notes/commit/dba9b5eb0c7c0fab82d1c5e7b832f279cfd448be))
+* **gradle:** update dependency org.openrewrite.recipe:rewrite-java-dependencies ( 1.60.1 ➔ 1.60.2 ) ([6ba9d6c](https://github.com/dmfrey/spring-notes/commit/6ba9d6c1e5d80363c0d96de941607494da77ff62))
+* **gradle:** update plugin org.cyclonedx.bom ( 3.4.0 ➔ 3.4.1 ) ([4dfca97](https://github.com/dmfrey/spring-notes/commit/4dfca97b56ead0141c6bc7afee82d718150be4d2))
+* **gradle:** update plugin org.cyclonedx.bom ( 3.4.0 ➔ 3.4.1 ) ([2c68733](https://github.com/dmfrey/spring-notes/commit/2c687339098d2ea23ba64238edde96c1ef52ffcb))
+* **gradle:** update plugin org.graalvm.buildtools.native ( 1.1.8 ➔ 1.1.9 ) ([3d2cbfb](https://github.com/dmfrey/spring-notes/commit/3d2cbfb4304a02a9867e58112d66a70f589d02fe))
+* **gradle:** update plugin org.graalvm.buildtools.native ( 1.1.8 ➔ 1.1.9 ) ([8a9363d](https://github.com/dmfrey/spring-notes/commit/8a9363d5a7dbe3828dae85b2c4aacb1a8881e9b8))
+* revert chat keep-alive override, document server-side setting instead ([215a97c](https://github.com/dmfrey/spring-notes/commit/215a97cbf5a2bf8c30fff35f2f8500d6b5dd2c33))
+
 ## [3.6.0](https://github.com/dmfrey/spring-notes/compare/v3.5.0...v3.6.0) (2026-08-11)
 
 
