@@ -25,7 +25,7 @@ repositories {
 
 ext {
 	set('datasourceMicrometerVersion', "2.2.1")
-	set('springAiVersion', "2.0.0")
+	set('springAiVersion', "2.0.1")
 
 	// Security overrides for High findings from Dependency-Track's v3.3.0 SBOM scan - bump past
 	// Spring Boot 4.1.0's managed versions ahead of its next patch release. Remove once
