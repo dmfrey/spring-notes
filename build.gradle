@@ -24,7 +24,7 @@ repositories {
 }
 
 ext {
-	set('datasourceMicrometerVersion', "2.2.1")
+	set('datasourceMicrometerVersion', "2.3.0")
 	set('springAiVersion', "2.0.0")
 
 	// Security overrides for High findings from Dependency-Track's v3.3.0 SBOM scan - bump past
