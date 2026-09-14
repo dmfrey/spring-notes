@@ -1,5 +1,63 @@
 # Changelog
 
+## [4.0.0](https://github.com/dmfrey/spring-notes/compare/v3.6.0...v4.0.0) (2026-09-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* **npm:** Update vite-vitest group ( 4.1.11 ➔ 5.0.0 )
+* **github-action:** Update action actions/setup-java ( v5.7.0 ➔ v6.0.1 )
+
+### Features
+
+* **deps:** update dependency net.ttddyy.observation:datasource-micrometer-bom ( 2.2.1 ➔ 2.3.0 ) ([66c0256](https://github.com/dmfrey/spring-notes/commit/66c0256e79131a078c073f9d36129ab451460f8f))
+* **deps:** update dependency net.ttddyy.observation:datasource-micrometer-bom ( 2.2.1 ➔ 2.3.0 ) ([c907525](https://github.com/dmfrey/spring-notes/commit/c907525a052b8322dff58b200dd2a44137690606))
+* **github-action:** Update action actions/setup-java ( v5.7.0 ➔ v6.0.1 ) ([6302d53](https://github.com/dmfrey/spring-notes/commit/6302d53ab74304102136557f6e2b342f1e5f5c42))
+* **github-action:** update action renovatebot/github-action ( v46.2.6 ➔ v46.3.0 ) ([f4caf05](https://github.com/dmfrey/spring-notes/commit/f4caf0504365919e36d291a688494629c8896233))
+* **gradle:** update dependency org.openrewrite.recipe:rewrite-spring ( 6.36.1 ➔ 6.37.0 ) ([cc2097b](https://github.com/dmfrey/spring-notes/commit/cc2097b660ceb248665573ce4f56f82878d0dbb5))
+* **gradle:** update dependency org.openrewrite.recipe:rewrite-spring ( 6.36.1 ➔ 6.37.0 ) ([9c56800](https://github.com/dmfrey/spring-notes/commit/9c568002a1cfbb2646af84083be337190c145d79))
+* **gradle:** update plugin org.openrewrite.rewrite ( 7.38.0 ➔ 7.39.0 ) ([09a8546](https://github.com/dmfrey/spring-notes/commit/09a8546b67cb26be17bc345340725efc8d1f6091))
+* **gradle:** update plugin org.openrewrite.rewrite ( 7.38.0 ➔ 7.39.0 ) ([1b01656](https://github.com/dmfrey/spring-notes/commit/1b01656d722c82f403e33ac4522a1d03f35a4a15))
+* **notes:** add checklist items to notes ([6dcb71f](https://github.com/dmfrey/spring-notes/commit/6dcb71f768b8117d915ff33cb4eaeca08f26bcf8))
+* **npm:** update dependency @playwright/test ( 1.62.1 ➔ 1.63.0 ) ([dd3d2e7](https://github.com/dmfrey/spring-notes/commit/dd3d2e7eaf1364c5bf6296173e6f73ac8723c15e))
+* **npm:** update dependency @playwright/test ( 1.62.1 ➔ 1.63.0 ) ([f54d347](https://github.com/dmfrey/spring-notes/commit/f54d3479af052c3ad0505588ea0876a735c8eebe))
+* **npm:** update opentelemetry-frontend group ([e2498b0](https://github.com/dmfrey/spring-notes/commit/e2498b0ea86c9acbba476e5bf0a7af92273a4567))
+* **npm:** update opentelemetry-frontend group ([6686ee2](https://github.com/dmfrey/spring-notes/commit/6686ee212212ab961e0c4a3af5983b9e1b230b56))
+* **npm:** update vite-vitest group ([adb757c](https://github.com/dmfrey/spring-notes/commit/adb757c986a95f63c8f563013aeea4449bfc44f8))
+* **npm:** update vite-vitest group ([7c7c975](https://github.com/dmfrey/spring-notes/commit/7c7c975c447d6ddbe257910f90af423f97c017ee))
+* **npm:** Update vite-vitest group ( 4.1.11 ➔ 5.0.0 ) ([5889cdf](https://github.com/dmfrey/spring-notes/commit/5889cdfa0e84817cb65b5b5bd275407fe79e4a91))
+* set 30m keep-alive for the Ollama chat model ([16c8bb8](https://github.com/dmfrey/spring-notes/commit/16c8bb8c0d09e79cbe595e3eea520e5b064fd78c))
+
+
+### Bug Fixes
+
+* **ci:** gate native image publish on Dependency-Track severity check ([b3de971](https://github.com/dmfrey/spring-notes/commit/b3de971fe6241eafc3735f462cd36812266bbe5b))
+* **deps:** bump vulnerable transitive deps, scope SBOM scan to shipped code ([6b92dda](https://github.com/dmfrey/spring-notes/commit/6b92dda89115e9f129d9158f1c37b8ecae5ebd11))
+* **github-action:** update action renovatebot/github-action ( v46.2.1 ➔ v46.2.2 ) ([b4b1c6c](https://github.com/dmfrey/spring-notes/commit/b4b1c6cba9f4d9ab7bc6700d94277cd765551451))
+* **github-action:** update action renovatebot/github-action ( v46.2.2 ➔ v46.2.3 ) ([740a48d](https://github.com/dmfrey/spring-notes/commit/740a48d17311faf12af7a348be29b431be8f676e))
+* **github-action:** update action renovatebot/github-action ( v46.2.3 ➔ v46.2.4 ) ([d113e21](https://github.com/dmfrey/spring-notes/commit/d113e21554e99d94bc586062c8f0885f18a21deb))
+* **github-action:** update action renovatebot/github-action ( v46.2.4 ➔ v46.2.5 ) ([8240133](https://github.com/dmfrey/spring-notes/commit/824013358ec7aa5318bf774d7d49260ed772abb1))
+* **github-action:** update action renovatebot/github-action ( v46.2.5 ➔ v46.2.6 ) ([18444a5](https://github.com/dmfrey/spring-notes/commit/18444a5d9f1f9623b98324f1abd863167dcf56a3))
+* **gradle:** update dependency org.openrewrite.recipe:rewrite-java-dependencies ( 1.60.1 ➔ 1.60.2 ) ([dba9b5e](https://github.com/dmfrey/spring-notes/commit/dba9b5eb0c7c0fab82d1c5e7b832f279cfd448be))
+* **gradle:** update dependency org.openrewrite.recipe:rewrite-java-dependencies ( 1.60.1 ➔ 1.60.2 ) ([6ba9d6c](https://github.com/dmfrey/spring-notes/commit/6ba9d6c1e5d80363c0d96de941607494da77ff62))
+* **gradle:** update dependency org.openrewrite.recipe:rewrite-spring ( 6.37.0 ➔ 6.37.1 ) ([ddbd5bd](https://github.com/dmfrey/spring-notes/commit/ddbd5bdd621350228188c845cd65ad576502281b))
+* **gradle:** update dependency org.openrewrite.recipe:rewrite-spring ( 6.37.0 ➔ 6.37.1 ) ([8ece50e](https://github.com/dmfrey/spring-notes/commit/8ece50eaf2a9c36a476a0b6d1a0199551c03a1b4))
+* **gradle:** update dependency org.springframework.ai:spring-ai-bom ( 2.0.0 ➔ 2.0.1 ) ([a342b83](https://github.com/dmfrey/spring-notes/commit/a342b838eae4bc40c8fd1f62e6bd202e428dfc6c))
+* **gradle:** update dependency org.springframework.ai:spring-ai-bom ( 2.0.0 ➔ 2.0.1 ) ([d88ffff](https://github.com/dmfrey/spring-notes/commit/d88ffffe8dff7815634d1d8c54ee633c52391eed))
+* **gradle:** update gradle ( 9.7.0 ➔ 9.7.1 ) ([4068dcb](https://github.com/dmfrey/spring-notes/commit/4068dcb8e8e94c5a459862f5aa5e9b336acf1638))
+* **gradle:** update gradle ( 9.7.0 ➔ 9.7.1 ) ([9ba66b6](https://github.com/dmfrey/spring-notes/commit/9ba66b6b5491facb2f30e4563842a77e3d1e38d0))
+* **gradle:** update plugin com.gradle.develocity ( 4.5.0 ➔ 4.5.1 ) ([f1511b9](https://github.com/dmfrey/spring-notes/commit/f1511b993d13cc1c283bb9dace673e153841ed9c))
+* **gradle:** update plugin com.gradle.develocity ( 4.5.0 ➔ 4.5.1 ) ([07263f8](https://github.com/dmfrey/spring-notes/commit/07263f8a880529bf651c2f63d06e83a298e819d8))
+* **gradle:** update plugin org.cyclonedx.bom ( 3.4.0 ➔ 3.4.1 ) ([4dfca97](https://github.com/dmfrey/spring-notes/commit/4dfca97b56ead0141c6bc7afee82d718150be4d2))
+* **gradle:** update plugin org.cyclonedx.bom ( 3.4.0 ➔ 3.4.1 ) ([2c68733](https://github.com/dmfrey/spring-notes/commit/2c687339098d2ea23ba64238edde96c1ef52ffcb))
+* **gradle:** update plugin org.graalvm.buildtools.native ( 1.1.8 ➔ 1.1.9 ) ([3d2cbfb](https://github.com/dmfrey/spring-notes/commit/3d2cbfb4304a02a9867e58112d66a70f589d02fe))
+* **gradle:** update plugin org.graalvm.buildtools.native ( 1.1.8 ➔ 1.1.9 ) ([8a9363d](https://github.com/dmfrey/spring-notes/commit/8a9363d5a7dbe3828dae85b2c4aacb1a8881e9b8))
+* **gradle:** update plugin org.graalvm.buildtools.native ( 1.1.9 ➔ 1.1.12 ) ([59a5e2a](https://github.com/dmfrey/spring-notes/commit/59a5e2a8b88e8b5981baa6fd20834d0f0c286237))
+* **gradle:** update plugin org.graalvm.buildtools.native ( 1.1.9 ➔ 1.1.12 ) ([7db0ffb](https://github.com/dmfrey/spring-notes/commit/7db0ffbb0546ecab1b3ffda619cda2d3b967f33c))
+* **gradle:** update plugin org.springframework.boot ( 4.1.0 ➔ 4.1.1 ) ([7caa59c](https://github.com/dmfrey/spring-notes/commit/7caa59cf7149bc57ca30bf4c079dee6694b96464))
+* **gradle:** update plugin org.springframework.boot ( 4.1.0 ➔ 4.1.1 ) ([029d217](https://github.com/dmfrey/spring-notes/commit/029d217cfe60bf0ddf71f44cf1b2b5a94bcaeb2e))
+* revert chat keep-alive override, document server-side setting instead ([215a97c](https://github.com/dmfrey/spring-notes/commit/215a97cbf5a2bf8c30fff35f2f8500d6b5dd2c33))
+
 ## [3.6.0](https://github.com/dmfrey/spring-notes/compare/v3.5.0...v3.6.0) (2026-08-11)
 
 
