@@ -25,11 +25,15 @@ public class ChatConfiguration {
     // convention NoteEventPublisherAdapter already uses, keeps chat from depending on notes'
     // configuration class. The TopicExchange here isn't itself a @Bean, so RabbitAdmin doesn't
     // declare it a second time - it only needs the exchange's name to build the binding.
+    // "note.#" (zero-or-more trailing segments), not "note.*" (exactly one) - the checklist
+    // routing key ("note.checklist.updated") is three segments and would otherwise be silently
+    // dropped by the topic exchange with no error. Superset of the old pattern, so this doesn't
+    // change routing for any of the three original single-segment keys.
     @Bean
     Binding noteIndexBinding( Queue noteIndexQueue ) {
         return BindingBuilder.bind( noteIndexQueue )
                 .to( new TopicExchange( NotesConfiguration.NOTES_EVENTS_EXCHANGE ) )
-                .with( "note.*" );
+                .with( "note.#" );
     }
 
 }

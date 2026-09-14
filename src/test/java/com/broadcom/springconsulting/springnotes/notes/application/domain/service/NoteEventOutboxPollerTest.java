@@ -1,5 +1,6 @@
 package com.broadcom.springconsulting.springnotes.notes.application.domain.service;
 
+import com.broadcom.springconsulting.springnotes.notes.application.domain.model.NoteType;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteCreated;
 import com.broadcom.springconsulting.springnotes.notes.application.port.out.LoadUnpublishedNoteEventsPort;
 import com.broadcom.springconsulting.springnotes.notes.application.port.out.LoadUnpublishedNoteEventsPort.StoredNoteEvent;
@@ -59,7 +60,7 @@ class NoteEventOutboxPollerTest {
 
         var eventId = UuidCreator.getTimeOrderedEpoch();
         var noteId = UuidCreator.getTimeOrderedEpoch();
-        var event = new NoteCreated( noteId, TEST_OWNER, "Title", "Content", Instant.now() );
+        var event = new NoteCreated( noteId, TEST_OWNER, "Title", "Content", NoteType.TEXT, List.of(), Instant.now() );
         var stored = new StoredNoteEvent( eventId, event );
         when( loadUnpublishedNoteEventsPort.loadUnpublished( anyInt() ) ).thenReturn( List.of( stored ) );
 
@@ -76,11 +77,11 @@ class NoteEventOutboxPollerTest {
 
         var stored1 = new StoredNoteEvent(
                 UuidCreator.getTimeOrderedEpoch(),
-                new NoteCreated( UuidCreator.getTimeOrderedEpoch(), TEST_OWNER, "Title 1", "Content 1", Instant.now() )
+                new NoteCreated( UuidCreator.getTimeOrderedEpoch(), TEST_OWNER, "Title 1", "Content 1", NoteType.TEXT, List.of(), Instant.now() )
         );
         var stored2 = new StoredNoteEvent(
                 UuidCreator.getTimeOrderedEpoch(),
-                new NoteCreated( UuidCreator.getTimeOrderedEpoch(), TEST_OWNER, "Title 2", "Content 2", Instant.now() )
+                new NoteCreated( UuidCreator.getTimeOrderedEpoch(), TEST_OWNER, "Title 2", "Content 2", NoteType.TEXT, List.of(), Instant.now() )
         );
         when( loadUnpublishedNoteEventsPort.loadUnpublished( anyInt() ) ).thenReturn( List.of( stored1, stored2 ) );
 

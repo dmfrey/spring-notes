@@ -3,6 +3,7 @@ package com.broadcom.springconsulting.springnotes.notes.adapter.out.persistence;
 import com.broadcom.springconsulting.springnotes.TestcontainersConfiguration;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.Note;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.NoteAggregate;
+import com.broadcom.springconsulting.springnotes.notes.application.domain.model.NoteType;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteCreated;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteDeleted;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteUpdated;
@@ -19,6 +20,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 import javax.sql.DataSource;
 import java.time.Instant;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -53,7 +55,7 @@ class NoteEventStoreAdapterTest {
     void append_thenLoadEvents_returnsAppendedEvent() {
 
         var id = UuidCreator.getTimeOrderedEpoch();
-        var event = new NoteCreated( id, OWNER, "My Title", "Some content", Instant.now() );
+        var event = new NoteCreated( id, OWNER, "My Title", "Some content", NoteType.TEXT, List.of(), Instant.now() );
 
         adapter.append( event, OWNER );
 
@@ -67,7 +69,7 @@ class NoteEventStoreAdapterTest {
     void append_multipleEvents_returnsThemInSequenceOrder() {
 
         var id = UuidCreator.getTimeOrderedEpoch();
-        var created = new NoteCreated( id, OWNER, "Title", "Content", Instant.now() );
+        var created = new NoteCreated( id, OWNER, "Title", "Content", NoteType.TEXT, List.of(), Instant.now() );
         var updated = new NoteUpdated( id, "New Title", "New content", Instant.now() );
         var deleted = new NoteDeleted( id, Instant.now() );
 
@@ -86,8 +88,8 @@ class NoteEventStoreAdapterTest {
 
         var id1 = UuidCreator.getTimeOrderedEpoch();
         var id2 = UuidCreator.getTimeOrderedEpoch();
-        var event1 = new NoteCreated( id1, OWNER, "Note 1", "Content 1", Instant.now() );
-        var event2 = new NoteCreated( id2, OWNER, "Note 2", "Content 2", Instant.now() );
+        var event1 = new NoteCreated( id1, OWNER, "Note 1", "Content 1", NoteType.TEXT, List.of(), Instant.now() );
+        var event2 = new NoteCreated( id2, OWNER, "Note 2", "Content 2", NoteType.TEXT, List.of(), Instant.now() );
 
         adapter.append( event1, OWNER );
         adapter.append( event2, OWNER );
@@ -102,7 +104,7 @@ class NoteEventStoreAdapterTest {
     void loadEvents_withMismatchedOwner_returnsEmptyList() {
 
         var id = UuidCreator.getTimeOrderedEpoch();
-        adapter.append( new NoteCreated( id, OWNER, "Title", "Content", Instant.now() ), OWNER );
+        adapter.append( new NoteCreated( id, OWNER, "Title", "Content", NoteType.TEXT, List.of(), Instant.now() ), OWNER );
 
         var events = adapter.loadEvents( id, OTHER_OWNER );
 
@@ -115,12 +117,12 @@ class NoteEventStoreAdapterTest {
 
         var id = UuidCreator.getTimeOrderedEpoch();
 
-        adapter.append( new NoteCreated( id, OWNER, "Original Title", "Original content", Instant.now() ), OWNER );
+        adapter.append( new NoteCreated( id, OWNER, "Original Title", "Original content", NoteType.TEXT, List.of(), Instant.now() ), OWNER );
         adapter.append( new NoteUpdated( id, "Revised Title", "Revised content", Instant.now() ), OWNER );
 
         var note = NoteAggregate.hydrate( adapter.loadEvents( id, OWNER ) );
 
-        assertThat( note ).contains( new Note( id, "Revised Title", "Revised content" ) );
+        assertThat( note ).contains( new Note( id, "Revised Title", "Revised content", NoteType.TEXT, List.of() ) );
 
     }
 
@@ -129,7 +131,7 @@ class NoteEventStoreAdapterTest {
 
         var id = UuidCreator.getTimeOrderedEpoch();
 
-        adapter.append( new NoteCreated( id, OWNER, "Title", "Content", Instant.now() ), OWNER );
+        adapter.append( new NoteCreated( id, OWNER, "Title", "Content", NoteType.TEXT, List.of(), Instant.now() ), OWNER );
         adapter.append( new NoteDeleted( id, Instant.now() ), OWNER );
 
         var note = NoteAggregate.hydrate( adapter.loadEvents( id, OWNER ) );
@@ -142,7 +144,7 @@ class NoteEventStoreAdapterTest {
     void loadUnpublished_returnsAppendedEvent() {
 
         var id = UuidCreator.getTimeOrderedEpoch();
-        var event = new NoteCreated( id, OWNER, "Title", "Content", Instant.now() );
+        var event = new NoteCreated( id, OWNER, "Title", "Content", NoteType.TEXT, List.of(), Instant.now() );
         adapter.append( event, OWNER );
 
         var unpublished = adapter.loadUnpublished( 10 );
@@ -156,7 +158,7 @@ class NoteEventStoreAdapterTest {
     void loadUnpublished_respectsLimit() {
 
         for ( int i = 0; i < 5; i++ ) {
-            adapter.append( new NoteCreated( UuidCreator.getTimeOrderedEpoch(), OWNER, "Title " + i, "Content " + i, Instant.now() ), OWNER );
+            adapter.append( new NoteCreated( UuidCreator.getTimeOrderedEpoch(), OWNER, "Title " + i, "Content " + i, NoteType.TEXT, List.of(), Instant.now() ), OWNER );
         }
 
         var unpublished = adapter.loadUnpublished( 3 );
@@ -169,7 +171,7 @@ class NoteEventStoreAdapterTest {
     void markPublished_excludesEventFromSubsequentLoadUnpublished() {
 
         var id = UuidCreator.getTimeOrderedEpoch();
-        adapter.append( new NoteCreated( id, OWNER, "Title", "Content", Instant.now() ), OWNER );
+        adapter.append( new NoteCreated( id, OWNER, "Title", "Content", NoteType.TEXT, List.of(), Instant.now() ), OWNER );
         var eventId = adapter.loadUnpublished( 10 ).get( 0 ).eventId();
 
         adapter.markPublished( eventId );

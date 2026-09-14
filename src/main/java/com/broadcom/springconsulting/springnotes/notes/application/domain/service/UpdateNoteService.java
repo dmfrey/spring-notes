@@ -1,6 +1,7 @@
 package com.broadcom.springconsulting.springnotes.notes.application.domain.service;
 
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.Note;
+import com.broadcom.springconsulting.springnotes.notes.application.domain.model.NoteAggregate;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.NoteNotFoundException;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteUpdated;
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.UpdateNoteUseCase;
@@ -45,16 +46,15 @@ class UpdateNoteService implements UpdateNoteUseCase {
 
         return Observation.createNotStarted( "notes.update", observationRegistry )
                 .observe( () -> {
-                    if ( loadNoteEventsPort.loadEvents( command.id(), command.owner() ).isEmpty() ) {
-                        throw new NoteNotFoundException( command.id() );
-                    }
+                    var existing = NoteAggregate.hydrate( loadNoteEventsPort.loadEvents( command.id(), command.owner() ) )
+                            .orElseThrow( () -> new NoteNotFoundException( command.id() ) );
 
                     var event = new NoteUpdated( command.id(), command.title(), command.content(), Instant.now() );
 
                     appendNoteEventPort.append( event, command.owner() );
                     eventPublisher.publishEvent( new NoteEventPublished( event, command.owner() ) );
 
-                    return new Note( command.id(), command.title(), command.content() );
+                    return new Note( command.id(), command.title(), command.content(), existing.type(), existing.items() );
                 } );
     }
 

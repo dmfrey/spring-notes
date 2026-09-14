@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: notes-006-add-note-type-column
+      author: dmfrey
+      changes:
+        - addColumn:
+            tableName: notes
+            columns:
+              - column:
+                  name: type
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+                  defaultValue: 'TEXT'

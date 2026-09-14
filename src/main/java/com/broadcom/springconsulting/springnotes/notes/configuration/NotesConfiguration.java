@@ -1,10 +1,13 @@
 package com.broadcom.springconsulting.springnotes.notes.configuration;
 
+import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.ChecklistUpdated;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteCreated;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteDeleted;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteUpdated;
+import org.postgresql.util.PGobject;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.aot.hint.BindingReflectionHintsRegistrar;
+import org.springframework.aot.hint.MemberCategory;
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.context.annotation.Bean;
@@ -57,13 +60,27 @@ public class NotesConfiguration {
      * "Record components not available ... must be included in the reflection configuration"
      * the first time it's actually serialized (e.g. the first note created after a fresh
      * deploy) - a boot-only smoke test won't catch this, an end-to-end create-a-note test would.
+     * ChecklistItem/NoteType are expected to be picked up transitively (BindingReflectionHints-
+     * Registrar walks record-component types recursively) since they're referenced from
+     * NoteCreated/ChecklistUpdated's own components - verify this with a real native-image
+     * checklist create/toggle rather than assume it.
+     *
+     * PGobject (used by the notes.items JSONB Spring Data JDBC converter) has zero entries in
+     * this build's pinned postgresql-driver reachability metadata (confirmed by inspecting
+     * build/native-reachability-metadata directly) - registered explicitly here rather than
+     * discovered via a failed native-image boot, since every other JSONB write in this app goes
+     * through hand-rolled JDBC + an explicit ::jsonb cast and never touches PGobject.
      */
     static class NoteEventRuntimeHints implements RuntimeHintsRegistrar {
 
         @Override
         public void registerHints( RuntimeHints hints, ClassLoader classLoader ) {
             var binding = new BindingReflectionHintsRegistrar();
-            binding.registerReflectionHints( hints.reflection(), NoteCreated.class, NoteUpdated.class, NoteDeleted.class );
+            binding.registerReflectionHints( hints.reflection(), NoteCreated.class, NoteUpdated.class, NoteDeleted.class, ChecklistUpdated.class );
+
+            hints.reflection().registerType( PGobject.class,
+                    MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+                    MemberCategory.INVOKE_PUBLIC_METHODS );
         }
 
     }

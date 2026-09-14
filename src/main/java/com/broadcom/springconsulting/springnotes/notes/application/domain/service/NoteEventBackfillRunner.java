@@ -48,7 +48,7 @@ class NoteEventBackfillRunner implements ApplicationRunner {
             // so very old rows may not have one - Instant.now() is an honest fallback, since we
             // genuinely don't know when they were really created.
             var occurredAt = note.createdDate() != null ? note.createdDate() : Instant.now();
-            var event = new NoteCreated( note.id(), note.owner(), note.title(), note.content(), occurredAt );
+            var event = new NoteCreated( note.id(), note.owner(), note.title(), note.content(), note.type(), note.items(), occurredAt );
 
             appendNoteEventPort.append( event, note.owner() );
         }

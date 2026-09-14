@@ -1,6 +1,40 @@
 /* First real stylesheet in this app - added specifically for the chat panel, which needs
    fixed positioning and a slide-in transition that inline styles don't handle cleanly. */
 
+.checklist__items {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.checklist__item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.checklist__item-text {
+  flex: 1;
+}
+
+.checklist__item-text--checked {
+  text-decoration: line-through;
+  color: #888;
+}
+
+.checklist__error {
+  color: #c00;
+}
+
+.checklist__add-form {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
 .chat-toggle {
   position: fixed;
   top: 1rem;

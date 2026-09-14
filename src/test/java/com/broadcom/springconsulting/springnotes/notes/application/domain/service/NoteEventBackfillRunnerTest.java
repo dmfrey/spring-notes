@@ -1,5 +1,6 @@
 package com.broadcom.springconsulting.springnotes.notes.application.domain.service;
 
+import com.broadcom.springconsulting.springnotes.notes.application.domain.model.NoteType;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteCreated;
 import com.broadcom.springconsulting.springnotes.notes.application.port.out.AppendNoteEventPort;
 import com.broadcom.springconsulting.springnotes.notes.application.port.out.LoadNotesMissingEventsPort;
@@ -61,12 +62,12 @@ class NoteEventBackfillRunnerTest {
         var id = UuidCreator.getTimeOrderedEpoch();
         var createdDate = Instant.parse( "2025-01-01T00:00:00Z" );
         when( loadNotesMissingEventsPort.loadNotesMissingEvents() )
-                .thenReturn( List.of( new NoteSnapshot( id, OWNER, "Title", "Content", createdDate ) ) );
+                .thenReturn( List.of( new NoteSnapshot( id, OWNER, "Title", "Content", NoteType.TEXT, List.of(), createdDate ) ) );
 
         runner.run( null );
 
         verify( appendNoteEventPort ).append( eventCaptor.capture(), eq( OWNER ) );
-        assertThat( eventCaptor.getValue() ).isEqualTo( new NoteCreated( id, OWNER, "Title", "Content", createdDate ) );
+        assertThat( eventCaptor.getValue() ).isEqualTo( new NoteCreated( id, OWNER, "Title", "Content", NoteType.TEXT, List.of(), createdDate ) );
 
     }
 
@@ -75,7 +76,7 @@ class NoteEventBackfillRunnerTest {
 
         var id = UuidCreator.getTimeOrderedEpoch();
         when( loadNotesMissingEventsPort.loadNotesMissingEvents() )
-                .thenReturn( List.of( new NoteSnapshot( id, OWNER, "Title", "Content", null ) ) );
+                .thenReturn( List.of( new NoteSnapshot( id, OWNER, "Title", "Content", NoteType.TEXT, List.of(), null ) ) );
 
         var before = Instant.now();
         runner.run( null );
@@ -92,8 +93,8 @@ class NoteEventBackfillRunnerTest {
         var id1 = UuidCreator.getTimeOrderedEpoch();
         var id2 = UuidCreator.getTimeOrderedEpoch();
         when( loadNotesMissingEventsPort.loadNotesMissingEvents() ).thenReturn( List.of(
-                new NoteSnapshot( id1, OWNER, "Title 1", "Content 1", Instant.now() ),
-                new NoteSnapshot( id2, OWNER, "Title 2", "Content 2", Instant.now() )
+                new NoteSnapshot( id1, OWNER, "Title 1", "Content 1", NoteType.TEXT, List.of(), Instant.now() ),
+                new NoteSnapshot( id2, OWNER, "Title 2", "Content 2", NoteType.TEXT, List.of(), Instant.now() )
         ) );
 
         runner.run( null );

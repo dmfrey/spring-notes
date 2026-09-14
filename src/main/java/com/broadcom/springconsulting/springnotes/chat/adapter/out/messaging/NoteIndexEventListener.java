@@ -3,6 +3,9 @@ package com.broadcom.springconsulting.springnotes.chat.adapter.out.messaging;
 import com.broadcom.springconsulting.springnotes.chat.application.port.out.IndexNotePort;
 import com.broadcom.springconsulting.springnotes.chat.application.port.out.RemoveNoteIndexPort;
 import com.broadcom.springconsulting.springnotes.chat.configuration.ChatConfiguration;
+import com.broadcom.springconsulting.springnotes.notes.application.domain.model.ChecklistItem;
+import com.broadcom.springconsulting.springnotes.notes.application.domain.model.NoteType;
+import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.ChecklistUpdated;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteCreated;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteDeleted;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteEvent;
@@ -12,6 +15,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 // The app's first-ever RabbitMQ *consumer* (previously only a publisher existed). Deliberately
 // bound to the existing notes.events exchange rather than any notes-package code knowing about
@@ -41,10 +47,24 @@ class NoteIndexEventListener {
         log.debug( "Indexing update from {} for note {}", event.getClass().getSimpleName(), event.noteId() );
 
         switch ( event ) {
-            case NoteCreated created -> indexNotePort.index( created.noteId(), created.owner(), created.title(), created.content() );
+            case NoteCreated created -> {
+                var content = created.type() == NoteType.LIST ? renderItems( created.items() ) : created.content();
+                indexNotePort.index( created.noteId(), created.owner(), created.title(), content );
+            }
             case NoteUpdated updated -> indexNotePort.reindex( updated.noteId(), updated.title(), updated.content() );
+            // ChecklistUpdated only carries a delta, not the note's full current items/title -
+            // the port implementation re-reads current state from notes itself.
+            case ChecklistUpdated checklistUpdated -> indexNotePort.reindexFromSource( checklistUpdated.noteId() );
             case NoteDeleted deleted -> removeNoteIndexPort.remove( deleted.noteId() );
         }
+    }
+
+    // Duplicated in VectorStoreIndexAdapter rather than shared - see that class's comment on
+    // why a helper can't cross the messaging/persistence adapter package boundary here.
+    private static String renderItems( List<ChecklistItem> items ) {
+        return items.stream()
+                .map( item -> ( item.checked() ? "- [x] " : "- [ ] " ) + item.text() )
+                .collect( Collectors.joining( "\n" ) );
     }
 
 }

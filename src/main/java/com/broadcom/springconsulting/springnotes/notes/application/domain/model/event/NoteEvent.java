@@ -14,9 +14,10 @@ import java.util.UUID;
 @JsonSubTypes( {
         @JsonSubTypes.Type( value = NoteCreated.class, name = "NoteCreated" ),
         @JsonSubTypes.Type( value = NoteUpdated.class, name = "NoteUpdated" ),
-        @JsonSubTypes.Type( value = NoteDeleted.class, name = "NoteDeleted" )
+        @JsonSubTypes.Type( value = NoteDeleted.class, name = "NoteDeleted" ),
+        @JsonSubTypes.Type( value = ChecklistUpdated.class, name = "ChecklistUpdated" )
 } )
-public sealed interface NoteEvent permits NoteCreated, NoteUpdated, NoteDeleted {
+public sealed interface NoteEvent permits NoteCreated, NoteUpdated, NoteDeleted, ChecklistUpdated {
 
     UUID noteId();
 

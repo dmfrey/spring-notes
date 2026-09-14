@@ -1,5 +1,6 @@
 package com.broadcom.springconsulting.springnotes.notes.application.domain.service;
 
+import com.broadcom.springconsulting.springnotes.notes.application.domain.model.NoteType;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteCreated;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteEvent;
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.LoadNoteHistoryUseCase.LoadNoteHistoryCommand;
@@ -38,7 +39,7 @@ class LoadNoteHistoryServiceTest {
     void execute_delegatesToPort() {
 
         var id = UuidCreator.getTimeOrderedEpoch();
-        List<NoteEvent> expected = List.of( new NoteCreated( id, TEST_OWNER, "My Title", "Some content", Instant.now() ) );
+        List<NoteEvent> expected = List.of( new NoteCreated( id, TEST_OWNER, "My Title", "Some content", NoteType.TEXT, List.of(), Instant.now() ) );
         when( loadNoteEventsPort.loadEvents( id, TEST_OWNER ) ).thenReturn( expected );
 
         var result = service.execute( new LoadNoteHistoryCommand( id, TEST_OWNER ) );

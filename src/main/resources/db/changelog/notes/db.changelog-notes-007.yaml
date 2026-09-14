@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: notes-007-add-note-items-column
+      author: dmfrey
+      changes:
+        - addColumn:
+            tableName: notes
+            columns:
+              - column:
+                  name: items
+                  type: JSONB
+                  constraints:
+                    nullable: true

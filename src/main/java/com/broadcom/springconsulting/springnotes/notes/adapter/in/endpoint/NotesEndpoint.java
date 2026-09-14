@@ -1,13 +1,19 @@
 package com.broadcom.springconsulting.springnotes.notes.adapter.in.endpoint;
 
+import com.broadcom.springconsulting.springnotes.notes.application.domain.model.ChecklistItemNotFoundException;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.Note;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.NoteNotFoundException;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.NoteSlice;
+import com.broadcom.springconsulting.springnotes.notes.application.domain.model.NoteType;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteEvent;
+import com.broadcom.springconsulting.springnotes.notes.application.port.in.AddChecklistItemUseCase;
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.CreateNoteUseCase;
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.DeleteNoteUseCase;
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.LoadNoteHistoryUseCase;
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.LoadNotesUseCase;
+import com.broadcom.springconsulting.springnotes.notes.application.port.in.RemoveChecklistItemUseCase;
+import com.broadcom.springconsulting.springnotes.notes.application.port.in.ReorderChecklistItemsUseCase;
+import com.broadcom.springconsulting.springnotes.notes.application.port.in.ToggleChecklistItemUseCase;
 import com.broadcom.springconsulting.springnotes.notes.application.port.in.UpdateNoteUseCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +23,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -40,19 +47,31 @@ class NotesEndpoint {
     private final CreateNoteUseCase createNoteUseCase;
     private final UpdateNoteUseCase updateNoteUseCase;
     private final DeleteNoteUseCase deleteNoteUseCase;
+    private final AddChecklistItemUseCase addChecklistItemUseCase;
+    private final RemoveChecklistItemUseCase removeChecklistItemUseCase;
+    private final ToggleChecklistItemUseCase toggleChecklistItemUseCase;
+    private final ReorderChecklistItemsUseCase reorderChecklistItemsUseCase;
 
     NotesEndpoint(
             LoadNotesUseCase loadNotesUseCase,
             LoadNoteHistoryUseCase loadNoteHistoryUseCase,
             CreateNoteUseCase createNoteUseCase,
             UpdateNoteUseCase updateNoteUseCase,
-            DeleteNoteUseCase deleteNoteUseCase
+            DeleteNoteUseCase deleteNoteUseCase,
+            AddChecklistItemUseCase addChecklistItemUseCase,
+            RemoveChecklistItemUseCase removeChecklistItemUseCase,
+            ToggleChecklistItemUseCase toggleChecklistItemUseCase,
+            ReorderChecklistItemsUseCase reorderChecklistItemsUseCase
     ) {
         this.loadNotesUseCase = loadNotesUseCase;
         this.loadNoteHistoryUseCase = loadNoteHistoryUseCase;
         this.createNoteUseCase = createNoteUseCase;
         this.updateNoteUseCase = updateNoteUseCase;
         this.deleteNoteUseCase = deleteNoteUseCase;
+        this.addChecklistItemUseCase = addChecklistItemUseCase;
+        this.removeChecklistItemUseCase = removeChecklistItemUseCase;
+        this.toggleChecklistItemUseCase = toggleChecklistItemUseCase;
+        this.reorderChecklistItemsUseCase = reorderChecklistItemsUseCase;
     }
 
     @GetMapping( version = "1+" )
@@ -74,7 +93,7 @@ class NotesEndpoint {
     ) {
         log.debug( "Creating note for owner {}", jwt.getSubject() );
 
-        var note = createNoteUseCase.execute( new CreateNoteUseCase.CreateNoteCommand( jwt.getSubject(), request.title(), request.content() ) );
+        var note = createNoteUseCase.execute( new CreateNoteUseCase.CreateNoteCommand( jwt.getSubject(), request.title(), request.content(), request.type(), request.items() ) );
         var location = uriBuilder.path( "/{id}" ).buildAndExpand( note.id() ).toUri();
 
         return ResponseEntity.created( location ).body( note );
@@ -115,18 +134,77 @@ class NotesEndpoint {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping( value = "/{id}/items", version = "1+" )
+    ResponseEntity<Note> addChecklistItem(
+            @PathVariable UUID id,
+            @RequestBody AddChecklistItemRequest request,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        log.debug( "Adding checklist item to note {}", id );
+
+        var note = addChecklistItemUseCase.execute( new AddChecklistItemUseCase.AddChecklistItemCommand( id, jwt.getSubject(), request.text() ) );
+
+        return ResponseEntity.ok( note );
+    }
+
+    @DeleteMapping( value = "/{id}/items/{itemId}", version = "1+" )
+    ResponseEntity<Note> removeChecklistItem(
+            @PathVariable UUID id,
+            @PathVariable UUID itemId,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        log.debug( "Removing checklist item {} from note {}", itemId, id );
+
+        var note = removeChecklistItemUseCase.execute( new RemoveChecklistItemUseCase.RemoveChecklistItemCommand( id, jwt.getSubject(), itemId ) );
+
+        return ResponseEntity.ok( note );
+    }
+
+    @PatchMapping( value = "/{id}/items/{itemId}/toggle", version = "1+" )
+    ResponseEntity<Note> toggleChecklistItem(
+            @PathVariable UUID id,
+            @PathVariable UUID itemId,
+            @RequestBody ToggleChecklistItemRequest request,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        log.debug( "Toggling checklist item {} on note {}", itemId, id );
+
+        var note = toggleChecklistItemUseCase.execute( new ToggleChecklistItemUseCase.ToggleChecklistItemCommand( id, jwt.getSubject(), itemId, request.checked() ) );
+
+        return ResponseEntity.ok( note );
+    }
+
+    @PutMapping( value = "/{id}/items", version = "1+" )
+    ResponseEntity<Note> reorderChecklistItems(
+            @PathVariable UUID id,
+            @RequestBody ReorderChecklistItemsRequest request,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        log.debug( "Reordering checklist items on note {}", id );
+
+        var note = reorderChecklistItemsUseCase.execute( new ReorderChecklistItemsUseCase.ReorderChecklistItemsCommand( id, jwt.getSubject(), request.orderedItemIds() ) );
+
+        return ResponseEntity.ok( note );
+    }
+
     @ExceptionHandler( IllegalArgumentException.class )
     ResponseEntity<Void> handleValidation() {
         return ResponseEntity.badRequest().build();
     }
 
-    @ExceptionHandler( NoteNotFoundException.class )
+    @ExceptionHandler( { NoteNotFoundException.class, ChecklistItemNotFoundException.class } )
     ResponseEntity<Void> handleNotFound() {
         return ResponseEntity.notFound().build();
     }
 
-    record CreateNoteRequest( String title, String content ) {}
+    record CreateNoteRequest( String title, String content, NoteType type, List<String> items ) {}
 
     record UpdateNoteRequest( String title, String content ) {}
+
+    record AddChecklistItemRequest( String text ) {}
+
+    record ToggleChecklistItemRequest( boolean checked ) {}
+
+    record ReorderChecklistItemsRequest( List<UUID> orderedItemIds ) {}
 
 }

@@ -2,6 +2,7 @@ package com.broadcom.springconsulting.springnotes.notes.application.domain.servi
 
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.Note;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.NoteNotFoundException;
+import com.broadcom.springconsulting.springnotes.notes.application.domain.model.NoteType;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteCreated;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteEvent;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteUpdated;
@@ -66,7 +67,7 @@ class UpdateNoteServiceTest {
 
         var result = service.execute( new UpdateNoteCommand( id, TEST_OWNER, "New Title", "New content" ) );
 
-        assertThat( result ).isEqualTo( new Note( id, "New Title", "New content" ) );
+        assertThat( result ).isEqualTo( new Note( id, "New Title", "New content", NoteType.TEXT, List.of() ) );
 
         verify( appendNoteEventPort ).append( eventCaptor.capture(), eq( TEST_OWNER ) );
         assertThat( eventCaptor.getValue().noteId() ).isEqualTo( id );
@@ -103,7 +104,7 @@ class UpdateNoteServiceTest {
     }
 
     private static List<NoteEvent> existingEventFor( UUID id ) {
-        return List.of( new NoteCreated( id, TEST_OWNER, "Existing Title", "Existing content", Instant.now() ) );
+        return List.of( new NoteCreated( id, TEST_OWNER, "Existing Title", "Existing content", NoteType.TEXT, List.of(), Instant.now() ) );
     }
 
     @Test

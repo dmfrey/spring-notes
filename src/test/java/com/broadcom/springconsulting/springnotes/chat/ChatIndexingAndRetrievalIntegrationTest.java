@@ -16,6 +16,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 // Full application context (real Testcontainers Ollama, generating real embeddings) rather than
 // a narrow slice - PgVectorStore's autoconfiguration needs a real EmbeddingModel bean, and the
@@ -91,6 +92,33 @@ class ChatIndexingAndRetrievalIntegrationTest {
         var results = retrieveRelevantNotesPort.retrieve( OWNER, "Updated content", 5 );
 
         assertThat( results ).anyMatch( note -> note.title().equals( "Updated Title" ) );
+
+    }
+
+    @Test
+    void reindexFromSource_forListNote_indexesRenderedItemsAsContent() {
+
+        var noteId = UuidCreator.getTimeOrderedEpoch();
+        indexNotePort.index( noteId, OWNER, "Original Title", "Original content" );
+
+        jdbcTemplate.update(
+                "INSERT INTO notes (id, title, content, owner, type, items) VALUES (?, ?, ?, ?, ?, ?::jsonb)",
+                noteId, "Groceries", null, OWNER, "LIST", "[{\"id\":\"" + UuidCreator.getTimeOrderedEpoch() + "\",\"text\":\"Milk\",\"checked\":false}]" );
+
+        indexNotePort.reindexFromSource( noteId );
+
+        var results = retrieveRelevantNotesPort.retrieve( OWNER, "Milk", 5 );
+
+        assertThat( results ).anyMatch( note -> note.title().equals( "Groceries" ) && note.content().contains( "Milk" ) );
+
+    }
+
+    @Test
+    void reindexFromSource_whenNoteNoLongerExists_doesNotThrow() {
+
+        var noteId = UuidCreator.getTimeOrderedEpoch();
+
+        assertThat( catchThrowable( () -> indexNotePort.reindexFromSource( noteId ) ) ).isNull();
 
     }
 

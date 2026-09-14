@@ -1,5 +1,6 @@
 package com.broadcom.springconsulting.springnotes.notes.adapter.out.messaging;
 
+import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.ChecklistUpdated;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteCreated;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteDeleted;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteEvent;
@@ -48,6 +49,7 @@ class NoteEventPublisherAdapter implements PublishNoteEventPort {
             case NoteCreated ignored -> "note.created";
             case NoteUpdated ignored -> "note.updated";
             case NoteDeleted ignored -> "note.deleted";
+            case ChecklistUpdated ignored -> "note.checklist.updated";
         };
     }
 

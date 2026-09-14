@@ -2,6 +2,10 @@ package com.broadcom.springconsulting.springnotes.chat.adapter.out.messaging;
 
 import com.broadcom.springconsulting.springnotes.chat.application.port.out.IndexNotePort;
 import com.broadcom.springconsulting.springnotes.chat.application.port.out.RemoveNoteIndexPort;
+import com.broadcom.springconsulting.springnotes.notes.application.domain.model.ChecklistAction;
+import com.broadcom.springconsulting.springnotes.notes.application.domain.model.ChecklistItem;
+import com.broadcom.springconsulting.springnotes.notes.application.domain.model.NoteType;
+import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.ChecklistUpdated;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteCreated;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteDeleted;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteUpdated;
@@ -15,6 +19,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -43,7 +48,7 @@ class NoteIndexEventListenerTest {
     void onMessage_forNoteCreated_indexesWithOwnerFromEvent() {
 
         var id = UuidCreator.getTimeOrderedEpoch();
-        var event = new NoteCreated( id, TEST_OWNER, "Title", "Content", Instant.now() );
+        var event = new NoteCreated( id, TEST_OWNER, "Title", "Content", NoteType.TEXT, List.of(), Instant.now() );
 
         listener.onMessage( toBytes( event ) );
 
@@ -62,6 +67,37 @@ class NoteIndexEventListenerTest {
 
         verify( indexNotePort ).reindex( id, "New Title", "New content" );
         verify( indexNotePort, never() ).index( any(), any(), any(), any() );
+        verifyNoInteractions( removeNoteIndexPort );
+
+    }
+
+    @Test
+    void onMessage_forListNoteCreated_indexesRenderedItemsAsContent() {
+
+        var id = UuidCreator.getTimeOrderedEpoch();
+        var items = List.of(
+                new ChecklistItem( UuidCreator.getTimeOrderedEpoch(), "Milk", false ),
+                new ChecklistItem( UuidCreator.getTimeOrderedEpoch(), "Eggs", true )
+        );
+        var event = new NoteCreated( id, TEST_OWNER, "Groceries", null, NoteType.LIST, items, Instant.now() );
+
+        listener.onMessage( toBytes( event ) );
+
+        verify( indexNotePort ).index( id, TEST_OWNER, "Groceries", "- [ ] Milk\n- [x] Eggs" );
+
+    }
+
+    @Test
+    void onMessage_forChecklistUpdated_reindexesFromSource() {
+
+        var id = UuidCreator.getTimeOrderedEpoch();
+        var event = new ChecklistUpdated( id, ChecklistAction.ITEM_TOGGLED, UuidCreator.getTimeOrderedEpoch(), null, true, null, Instant.now() );
+
+        listener.onMessage( toBytes( event ) );
+
+        verify( indexNotePort ).reindexFromSource( id );
+        verify( indexNotePort, never() ).index( any(), any(), any(), any() );
+        verify( indexNotePort, never() ).reindex( any(), any(), any() );
         verifyNoInteractions( removeNoteIndexPort );
 
     }

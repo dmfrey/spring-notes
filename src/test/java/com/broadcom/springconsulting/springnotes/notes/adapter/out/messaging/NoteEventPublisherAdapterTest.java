@@ -1,5 +1,6 @@
 package com.broadcom.springconsulting.springnotes.notes.adapter.out.messaging;
 
+import com.broadcom.springconsulting.springnotes.notes.application.domain.model.NoteType;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteCreated;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteDeleted;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.event.NoteEvent;
@@ -20,6 +21,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -48,7 +50,7 @@ class NoteEventPublisherAdapterTest {
 
         var eventId = UuidCreator.getTimeOrderedEpoch();
         var noteId = UuidCreator.getTimeOrderedEpoch();
-        var event = new NoteCreated( noteId, TEST_OWNER, "Title", "Content", Instant.now() );
+        var event = new NoteCreated( noteId, TEST_OWNER, "Title", "Content", NoteType.TEXT, List.of(), Instant.now() );
 
         adapter.publish( eventId, event );
 
@@ -87,7 +89,7 @@ class NoteEventPublisherAdapterTest {
 
         var eventId = UuidCreator.getTimeOrderedEpoch();
         var noteId = UuidCreator.getTimeOrderedEpoch();
-        var event = new NoteCreated( noteId, TEST_OWNER, "Title", "Content", Instant.now() );
+        var event = new NoteCreated( noteId, TEST_OWNER, "Title", "Content", NoteType.TEXT, List.of(), Instant.now() );
 
         adapter.publish( eventId, event );
 
@@ -102,7 +104,7 @@ class NoteEventPublisherAdapterTest {
 
         var eventId = UuidCreator.getTimeOrderedEpoch();
         var noteId = UuidCreator.getTimeOrderedEpoch();
-        var event = new NoteCreated( noteId, TEST_OWNER, "Title", "Content", Instant.now() );
+        var event = new NoteCreated( noteId, TEST_OWNER, "Title", "Content", NoteType.TEXT, List.of(), Instant.now() );
 
         adapter.publish( eventId, event );
 

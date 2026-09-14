@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useAuth } from './AuthProvider.jsx'
 import ChatPanel from './ChatPanel.jsx'
+import Checklist from './Checklist.jsx'
 
 async function fetchNotes(cursor, limit = 25, headers) {
   const params = new URLSearchParams({ limit })
@@ -11,11 +12,12 @@ async function fetchNotes(cursor, limit = 25, headers) {
   return response.json()
 }
 
-async function postNote(title, content, headers) {
+async function postNote(title, type, content, items, headers) {
+  const body = type === 'LIST' ? { title, type, items } : { title, type, content }
   const response = await fetch('/api/notes', {
     method: 'POST',
     headers: { ...headers, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title, content }),
+    body: JSON.stringify(body),
   })
   if (!response.ok) throw new Error(`Failed to create note: ${response.status}`)
   return response.json()
@@ -36,7 +38,9 @@ export default function App() {
 
   const [modalOpen, setModalOpen] = useState(false)
   const [title, setTitle] = useState('')
+  const [type, setType] = useState('TEXT')
   const [content, setContent] = useState('')
+  const [itemDrafts, setItemDrafts] = useState([''])
   const [submitting, setSubmitting] = useState(false)
   const [createError, setCreateError] = useState(null)
 
@@ -93,7 +97,9 @@ export default function App() {
 
   function openModal() {
     setTitle('')
+    setType('TEXT')
     setContent('')
+    setItemDrafts([''])
     setCreateError(null)
     setModalOpen(true)
   }
@@ -125,12 +131,25 @@ export default function App() {
     }
   }
 
+  function updateItemDraft(index, text) {
+    setItemDrafts((prev) => prev.map((t, i) => (i === index ? text : t)))
+  }
+
+  function addItemDraftRow() {
+    setItemDrafts((prev) => [...prev, ''])
+  }
+
+  function removeItemDraftRow(index) {
+    setItemDrafts((prev) => prev.filter((_, i) => i !== index))
+  }
+
   async function handleCreate(e) {
     e.preventDefault()
     setSubmitting(true)
     setCreateError(null)
     try {
-      const note = await postNote(title, content, authHeaders)
+      const items = itemDrafts.map((t) => t.trim()).filter((t) => t.length > 0)
+      const note = await postNote(title, type, content, items, authHeaders)
       setNotes((prev) => [note, ...prev])
       closeModal()
     } catch (e) {
@@ -138,6 +157,10 @@ export default function App() {
     } finally {
       setSubmitting(false)
     }
+  }
+
+  function handleNoteUpdated(updatedNote) {
+    setNotes((prev) => prev.map((n) => (n.id === updatedNote.id ? updatedNote : n)))
   }
 
   return (
@@ -161,7 +184,11 @@ export default function App() {
               <h2 style={{ margin: 0 }}>{note.title}</h2>
               <button onClick={() => openConfirmDelete(note)}>Delete</button>
             </div>
-            <p>{note.content}</p>
+            {note.type === 'LIST' ? (
+              <Checklist note={note} authHeaders={authHeaders} onNoteUpdated={handleNoteUpdated} />
+            ) : (
+              <p>{note.content}</p>
+            )}
           </li>
         ))}
       </ul>
@@ -202,16 +229,65 @@ export default function App() {
             />
           </div>
           <div style={{ marginTop: '0.75rem' }}>
-            <label htmlFor="note-content">Content</label>
-            <br />
-            <textarea
-              id="note-content"
-              rows={6}
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              required
-            />
+            <label>
+              <input
+                type="radio"
+                name="note-type"
+                value="TEXT"
+                checked={type === 'TEXT'}
+                onChange={() => setType('TEXT')}
+              />
+              Text
+            </label>
+            <label style={{ marginLeft: '1rem' }}>
+              <input
+                type="radio"
+                name="note-type"
+                value="LIST"
+                checked={type === 'LIST'}
+                onChange={() => setType('LIST')}
+              />
+              Checklist
+            </label>
           </div>
+          {type === 'TEXT' ? (
+            <div style={{ marginTop: '0.75rem' }}>
+              <label htmlFor="note-content">Content</label>
+              <br />
+              <textarea
+                id="note-content"
+                rows={6}
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                required
+              />
+            </div>
+          ) : (
+            <div style={{ marginTop: '0.75rem' }}>
+              <label>Items</label>
+              {itemDrafts.map((text, index) => (
+                <div key={index} style={{ display: 'flex', gap: '0.5rem', marginTop: '0.25rem' }}>
+                  <input
+                    type="text"
+                    value={text}
+                    onChange={(e) => updateItemDraft(index, e.target.value)}
+                    placeholder={`Item ${index + 1}`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeItemDraftRow(index)}
+                    disabled={itemDrafts.length === 1}
+                    aria-label="Remove item"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+              <button type="button" onClick={addItemDraftRow} style={{ marginTop: '0.5rem' }}>
+                Add item
+              </button>
+            </div>
+          )}
           {createError && <p role="alert">Error: {createError}</p>}
           <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
             <button type="submit" disabled={submitting}>
