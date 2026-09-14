@@ -27,12 +27,17 @@ ext {
 	set('datasourceMicrometerVersion', "2.3.0")
 	set('springAiVersion', "2.0.1")
 
-	// Security overrides for High findings from Dependency-Track's v3.3.0 SBOM scan - bump past
-	// Spring Boot 4.1.0's managed versions ahead of its next patch release. Remove once
-	// spring-boot-dependencies picks up fixed versions on its own.
-	set('logback.version', '1.5.37')     // CVE-2026-13006: conditional-processing config ACE
-	set('netty.version', '4.2.16.Final') // CVE-2026-59901 (netty-codec-compression): bzip2 decoder infinite loop DoS
-	set('postgresql.version', '42.7.12') // CVE-2026-54291: channelBinding=require silent downgrade to non-MITM-resistant SCRAM
+	// Security overrides for Critical/High findings from Dependency-Track's 2026-09-14 SBOM scan -
+	// bump past Spring Boot 4.1.1's managed versions ahead of its next patch release. Remove each
+	// once spring-boot-dependencies picks up a fixed version on its own.
+	//
+	// (The previous logback/netty/postgresql overrides pinned here for CVE-2026-13006,
+	// CVE-2026-59901, and CVE-2026-54291 were removed 2026-09-14: Spring Boot 4.1.1's BOM now
+	// manages logback 1.5.38, netty 4.2.17.Final, and postgresql 42.7.13 - all past those fixes.)
+	set('tomcat.version', '11.0.25')            // CVE-2026-65905/65182/68525/65927: DIGEST replay, path-constraint & FORM auth bypass, rewrite valve off-by-one
+	set('rabbit-amqp-client.version', '5.35.0') // CVE-2026-69220/63337 (+ unbounded-recursion/OOM ValueReader findings): DoS and unsafe Class.forName in JSON-RPC
+	set('jackson-2-bom.version', '2.22.2')      // CVE-2026-68497: XML datatype deserializer (Duration/XMLGregorianCalendar) quadratic-time DoS
+	set('jackson-bom.version', '3.2.2')         // CVE-2026-68497/68498: same XML datatype DoS, plus jackson-core uncontrolled resource consumption
 }
 
 dependencies {
@@ -102,6 +107,13 @@ rewrite {
 	activeRecipe(
 		'org.openrewrite.java.spring.NoAutowiredOnConstructor'
 	)
+}
+
+tasks.cyclonedxDirectBom {
+	// The `rewrite` configuration (OpenRewrite's own recipe engine, declared above) pulls in
+	// Jackson 2.x as a build-tool-only dependency - it's never shipped in the app or the native
+	// image. Left unscanned, Dependency-Track flags it as if it were a runtime component.
+	skipConfigs = [ 'rewrite' ]
 }
 
 dependencyManagement {
