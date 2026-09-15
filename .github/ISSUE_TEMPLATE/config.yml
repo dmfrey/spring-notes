@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Report a vulnerability
+    url: https://github.com/dmfrey/spring-notes/security/advisories/new
+    about: Please don't open a public issue for suspected vulnerabilities - use private reporting instead. See SECURITY.md.

@@ -60,3 +60,8 @@ npm run dev        # unit tests: npm test · E2E: npm run test:e2e
 Deployed to a Kubernetes cluster via a FluxCD `HelmRelease` (config lives in a separate
 GitOps repository). Images are published to `ghcr.io/dmfrey/spring-notes` (backend) and
 `ghcr.io/dmfrey/spring-notes-frontend` (frontend) on every push to `main` and on release tags.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). Found a security issue? See [SECURITY.md](SECURITY.md)
+instead of opening a public issue. Licensed under [MIT](LICENSE).
