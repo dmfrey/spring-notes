@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.1.0](https://github.com/dmfrey/spring-notes/compare/v4.0.0...v4.1.0) (2026-09-15)
+
+
+### Features
+
+* **frontend:** warm redesign with Spring's brand colors ([b0e0236](https://github.com/dmfrey/spring-notes/commit/b0e0236c3e732c4f266efe543a8ce68cbcb3deca))
+* **frontend:** warm redesign with Spring's brand colors ([1a45785](https://github.com/dmfrey/spring-notes/commit/1a45785491a088ad63aae7885a4b864344ca0af0))
+
 ## [4.0.0](https://github.com/dmfrey/spring-notes/compare/v3.6.0...v4.0.0) (2026-09-14)
 
 
