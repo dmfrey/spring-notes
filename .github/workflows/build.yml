@@ -157,9 +157,17 @@ jobs:
     # Dependency-Track is only reachable at a cluster-internal DNS name
     # (dependency-track-api.security.svc.cluster.local), so this runs on the
     # self-hosted runner living in the cluster rather than ubuntu-latest.
+    #
+    # Also runs on pull_request now, as a required status check gating the merge - not just
+    # push/tag, which only gated the post-merge image publish. Restricted to same-repo PRs
+    # (head.repo.full_name == github.repository): this repo is public and the runner is
+    # self-hosted inside the cluster, so a fork PR must never get its workflow code executed
+    # here - same-repo-only covers Renovate's and the owner's own PRs, the only sources today.
     runs-on: spring-notes-runner
     needs: test
-    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    if: >-
+      github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v') ||
+      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
     permissions:
       contents: read
     steps:
