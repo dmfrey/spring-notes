@@ -12,16 +12,13 @@ on:
       - 'gradlew'
       - 'gradlew.bat'
       - '.github/workflows/**'
+  # No path filter here (unlike push, above): test and sbom-submit are required status
+  # checks on main, so they must run - and report a result - on every PR, including ones
+  # that only touch frontend/** or docs. A path-filtered pull_request trigger left PRs like
+  # that permanently stuck as "expected, never reported" (see the same fix already applied
+  # for workflow-file-only PRs).
   pull_request:
     branches: [ "main" ]
-    paths:
-      - 'src/**'
-      - 'build.gradle'
-      - 'settings.gradle'
-      - 'gradle/**'
-      - 'gradlew'
-      - 'gradlew.bat'
-      - '.github/workflows/**'
   workflow_dispatch:
     inputs:
       image_tag:

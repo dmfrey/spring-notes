@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ArrowUpIcon, ArrowDownIcon, CloseIcon } from './icons.jsx'
 
 async function addItem(noteId, text, headers) {
   const response = await fetch(`/api/notes/${noteId}/items`, {
@@ -95,6 +96,7 @@ export default function Checklist({ note, authHeaders, onNoteUpdated }) {
           <li key={item.id} className="checklist__item">
             <input
               type="checkbox"
+              className="checklist__checkbox"
               checked={item.checked}
               disabled={busy}
               onChange={() => handleToggle(item)}
@@ -102,9 +104,17 @@ export default function Checklist({ note, authHeaders, onNoteUpdated }) {
             <span className={`checklist__item-text${item.checked ? ' checklist__item-text--checked' : ''}`}>
               {item.text}
             </span>
-            <button type="button" onClick={() => handleMove(item, -1)} disabled={busy} aria-label="Move up">↑</button>
-            <button type="button" onClick={() => handleMove(item, 1)} disabled={busy} aria-label="Move down">↓</button>
-            <button type="button" onClick={() => handleRemove(item)} disabled={busy} aria-label="Remove item">×</button>
+            <div className="checklist__item-actions">
+              <button type="button" className="btn--icon-sm" onClick={() => handleMove(item, -1)} disabled={busy} aria-label="Move up">
+                <ArrowUpIcon />
+              </button>
+              <button type="button" className="btn--icon-sm" onClick={() => handleMove(item, 1)} disabled={busy} aria-label="Move down">
+                <ArrowDownIcon />
+              </button>
+              <button type="button" className="btn--icon-sm" onClick={() => handleRemove(item)} disabled={busy} aria-label="Remove item">
+                <CloseIcon size={13} />
+              </button>
+            </div>
           </li>
         ))}
       </ul>
@@ -112,12 +122,13 @@ export default function Checklist({ note, authHeaders, onNoteUpdated }) {
       <form className="checklist__add-form" onSubmit={handleAdd}>
         <input
           type="text"
+          className="checklist__add-input"
           value={newItemText}
           onChange={(e) => setNewItemText(e.target.value)}
           placeholder="Add item"
           disabled={busy}
         />
-        <button type="submit" disabled={busy || !newItemText.trim()}>Add</button>
+        <button type="submit" className="checklist__add-btn" disabled={busy || !newItemText.trim()}>Add</button>
       </form>
     </div>
   )
