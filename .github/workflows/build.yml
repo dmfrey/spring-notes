@@ -33,7 +33,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write # required by gradle/actions/setup-gradle's dependency graph submission, below
       checks: write
       pull-requests: write
     steps:
@@ -47,6 +47,11 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6
+        with:
+          # Only submit a real snapshot for main - that's the only ref the Insights >
+          # Dependency graph page reflects, and PR branches have nothing to gain from one
+          # without also adding the separate dependency-review PR check.
+          dependency-graph: ${{ github.ref == 'refs/heads/main' && 'generate-and-submit' || 'disabled' }}
 
       - name: Run tests
         run: ./gradlew test
