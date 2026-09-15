@@ -241,3 +241,13 @@ jobs:
             echo "::error::$CRITICAL CRITICAL finding(s) - failing the build."
             exit 1
           fi
+
+      - name: Upload SBOM and findings
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: dependency-track-scan
+          path: |
+            build/reports/cyclonedx/application.cdx.json
+            findings.json
+          if-no-files-found: warn
