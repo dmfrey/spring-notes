@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useAuth } from './AuthProvider.jsx'
 import { streamChat } from './chat.js'
+import { ChatIcon, CloseIcon, SendIcon } from './icons.jsx'
 
 export default function ChatPanel() {
   const { user } = useAuth()
@@ -48,14 +49,17 @@ export default function ChatPanel() {
 
   return (
     <>
-      <button className="chat-toggle" onClick={() => setOpen((o) => !o)}>
+      <button className="chat-toggle btn btn--primary" onClick={() => setOpen((o) => !o)}>
+        {open ? <CloseIcon size={15} /> : <ChatIcon size={17} />}
         {open ? 'Close chat' : 'Chat'}
       </button>
 
       <aside className={`chat-panel${open ? ' chat-panel--open' : ''}`} aria-hidden={!open}>
         <div className="chat-panel__header">
           <h2>Chat about your notes</h2>
-          <button onClick={() => setOpen(false)} aria-label="Close chat panel">×</button>
+          <button className="btn--icon-sm" onClick={() => setOpen(false)} aria-label="Close chat panel">
+            <CloseIcon size={14} />
+          </button>
         </div>
 
         <div className="chat-panel__messages">
@@ -79,8 +83,8 @@ export default function ChatPanel() {
             disabled={sending}
             aria-label="Chat message"
           />
-          <button type="submit" disabled={sending || !input.trim()}>
-            {sending ? 'Sending…' : 'Send'}
+          <button type="submit" className="btn btn--primary" disabled={sending || !input.trim()} aria-label="Send">
+            {sending ? 'Sending…' : <SendIcon />}
           </button>
         </form>
       </aside>
