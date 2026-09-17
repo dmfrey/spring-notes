@@ -1,6 +1,6 @@
 package com.broadcom.springconsulting.springnotes.notes.adapter.out.persistence;
 
-import com.broadcom.springconsulting.springnotes.TestcontainersConfiguration;
+import com.broadcom.springconsulting.springnotes.DataTestcontainersConfiguration;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.ChecklistItem;
 import com.broadcom.springconsulting.springnotes.notes.application.domain.model.NoteType;
 import com.broadcom.springconsulting.springnotes.notes.application.port.out.LoadNotesMissingEventsPort;
@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJdbcTest
 @AutoConfigureTestDatabase( replace = AutoConfigureTestDatabase.Replace.NONE )
-@Import( { NotesConfiguration.class, TestcontainersConfiguration.class } )
+@Import( { NotesConfiguration.class, DataTestcontainersConfiguration.class } )
 class NotesPersistenceAdapterTest {
 
     static final String OWNER = "user-sub-1";
