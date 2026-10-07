@@ -44,7 +44,7 @@ jobs:
 
       - name: Setup Gradle
         if: matrix.language == 'java-kotlin'
-        uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6
+        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6
 
       # Compile only (not `build`/`check`) - CodeQL just needs compiled classes, and `check`
       # would pull in the full Testcontainers-backed test suite, which this hosted runner
